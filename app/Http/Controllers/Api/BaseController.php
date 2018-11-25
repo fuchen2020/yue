@@ -40,7 +40,7 @@ class BaseController extends Controller
      * @param int $https https协议
      * @return bool|mixed
      */
-    public static function set_curl($url, $params = false, $ispost = 0, $https = 0)
+    public static function set_curl($url, $params = false, $ispost = 0, $https = 0,$headers = '')
     {
         $httpInfo = array();
         $ch = curl_init();
@@ -49,6 +49,10 @@ class BaseController extends Controller
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        if($headers){
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
         if ($https) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // 对认证证书来源的检查
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // 从证书中检查SSL加密算法是否存在
@@ -99,10 +103,16 @@ class BaseController extends Controller
     /**
      * 验证用户头像合法性
      */
-    public static function _checkHead(){
+    public static function _checkHead($img){
 
+        $url = "https://fpp.market.alicloudapi.com/facepp/v3/detect";
+        $appCode = "26fe4929a9eb43b3a900675d55ccc557";
+        $headers = array();
+        array_push($headers, "Authorization:APPCODE " . $appCode);
 
+        $re = self::set_curl($url,$img,1,1,$headers);
 
+        return $re;
     }
 
 

@@ -13,6 +13,7 @@ use App\Http\Components\Code;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\Api\User;
 use App\Models\Api\UserAuth;
+use App\Models\Api\UserVip;
 use EasyWeChat\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -53,9 +54,21 @@ class LoginController extends BaseController
                $userAuth = (new UserAuth())->where('m_openid', $openid)->first();
                //判断当前用户在数据库是否存在
                if ($userAuth) {
+                   $user_id = $userAuth->id;
+                   if (UserVip::where('user_id',$user_id)->where('end_time','>',date('Y-m-d H:i:s'))->exists()){//判断当前是否充值
+                       $end_time=UserVIP::where('user_id',$user_id)->first();
+                       $is_vip = $end_time['end_time'];
+                   }else{
+                       $is_vip = false;
+                   }
 
                    $info = [
                        'token' => auth()->tokenById($userAuth->id),
+                       'is_vip' => $is_vip?true:false,
+                       'is_base_info' => $userAuth->head?true:false,
+                       'is_real_name' => $userAuth->is_card?true:false,
+                       'is_fen' =>  $userAuth->is_fen?true:false,
+                       'is_tui' =>  $userAuth->is_tui?true:false,
                    ];
                    return response()->json([
                        'code' =>200,
@@ -82,6 +95,11 @@ class LoginController extends BaseController
 
                        $info = [
                            'token' => auth()->tokenById($userAuth->id),
+                           'is_vip' => false,
+                           'is_base_info' => false,
+                           'is_real_name' => false,
+                           'is_fen' => false,
+                           'is_tui' => false,
                        ];
                        \DB::commit();
                        return response()->json([

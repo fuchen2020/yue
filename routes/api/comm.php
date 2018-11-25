@@ -16,7 +16,7 @@ Route::group([], function (Router $api) {
      * 访问地址: POST: getBackImage
      * 控制器位置: App\Http\Controllers\API\Comm\CommController.php
      **/
-    $api->match(['get','post'],'getBackImage',Comm\CommController::class.'@getBackImage')->name('getBackImage');
+    $api->match(['get','post'],'getBackImage',Comm\CommController::class.'@getBackImage');
 
 
 });
@@ -29,6 +29,6 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
      * 访问地址: POST: addFormID
      * 控制器位置: App\Http\Controllers\API\Comm\CommController.php
      **/
-    $api->match(['get','post'],'addFormID',Comm\CommController::class.'@addFormID')->name('addFormID');
+    $api->match(['get','post'],'addFormID',Comm\CommController::class.'@addFormID');
 
 });
