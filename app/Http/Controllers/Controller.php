@@ -30,9 +30,9 @@ class Controller extends BaseController
         $method   = $this->request->input('method');
         $callback = $this->request->input('callback');
         if($method === 'jsonp' && $callback)
-            return Response()->jsonp($callback, ['error' => $code, 'msg' => $message ? $message : Code::getError($code)]);
+            return Response()->jsonp($callback, ['code' => $code, 'msg' => $message ? $message : Code::getError($code),'status' => false]);
         $headers = ['content-type' => 'application/json'];
-        return Response()->json(['error' => $code, 'msg' => $message ? $message : Code::getError($code)])
+        return Response()->json(['code' => $code, 'msg' => $message ? $message : Code::getError($code),'status' => false])
             ->withHeaders($headers);
     }
     /**
@@ -40,14 +40,14 @@ class Controller extends BaseController
      * @param array $data
      * @return $this|\Illuminate\Http\JsonResponse
      */
-    public function sendJson($data = [])
+    public function sendJson($code = 0,$message = '',$data = [])
     {
         $method   = $this->request->input('method');
         $callback = $this->request->input('callback');
         if($method === 'jsonp' && $callback)
-            return Response()->jsonp($callback, ['error' => 0, 'data' => $data, 'msg' => '']);
+            return Response()->jsonp($callback, ['code' => $code, 'msg' => $message,'status' => true , 'data' => $data]);
         $headers = ['content-type' => 'application/json'];
-        return Response()->json(['error' => 0, 'data' => $data, 'msg' => ''])
+        return Response()->json(['code' => $code, 'msg' => $message,'status' => true , 'data' => $data])
             ->withHeaders($headers);
     }
 

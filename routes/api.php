@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Router as Router;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,25 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
+
+
+Route::group(
+    [
+        'prefix' => 'v1',
+    ],
+    function (Router $api) {
+        //用户相关
+        $api->group(['prefix' => 'user'], function (Router $api) {
+            require base_path('routes/api/user.php');
+        });
+
+        //公共
+        $api->group(['prefix' => 'common'], function (Router $api) {
+            require base_path('routes/api/comm.php');
+        });
+
+
+    });

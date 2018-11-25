@@ -18,6 +18,8 @@ class Code
 {
     const SUCCESS = 0;
     const FAIL = 1;
+    const FAIL2 = 400;
+    const FAIL3 = 500;
     const SERVER_ERROR = 2;
     const DATABASE_ERROR = 3;
     const UN_LOGIN = 4;
@@ -31,6 +33,8 @@ class Code
     public static $message = [
         self::SUCCESS => '成功',
         self::FAIL => '失败',
+        self::FAIL2 => '传递参数错误或无数据',
+        self::FAIL3 => '内部错误',
         self::SERVER_ERROR => '服务器错误',
         self::DATABASE_ERROR => '数据库正忙请稍后再试',
         self::UN_LOGIN => '未登录',

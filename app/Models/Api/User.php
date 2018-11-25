@@ -11,7 +11,7 @@ class User extends Authenticatable implements JWTSubject
 
     use Notifiable;
 
-
+    protected $table='user';
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
