@@ -101,18 +101,96 @@ class BaseController extends Controller
     }
 
     /**
+     * 百度接口请求
+     * @param string $url
+     * @param string $param
+     * @return bool|mixed
+     */
+   public static function  request_post($url = '', $param = '')
+    {
+        if (empty($url) || empty($param)) {
+            return false;
+        }
+        $postUrl = $url;
+        $curlPost = $param;
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $postUrl);
+        // 要求结果为字符串
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        // post方式
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $curlPost);
+        $data = curl_exec($curl);
+        var_dump(curl_error($curl));
+        curl_close($curl);
+
+        return $data;
+    }
+
+    /**
+     * 获取百度api token
+     * @return array|bool
+     */
+    public static function _getToken(){
+        $key = 'BaiDu_Api_Token';
+        $data=\Cache::get($key);
+        if ($data) {
+            return $data;
+        }
+
+        $url = 'https://aip.baidubce.com/oauth/2.0/token';
+        $post_data['grant_type']       = 'client_credentials';
+        $post_data['client_id']      = 'DqzU848GWcuYkcwTnyGrcr4q';
+        $post_data['client_secret'] = 'SMYqCqfOlhZkFVp1gecZrZOwwDGBW7wP';
+        $o = "";
+        foreach ( $post_data as $k => $v )
+        {
+            $o.= "$k=" . urlencode( $v ). "&" ;
+        }
+        $post_data = substr($o,0,-1);
+
+        $res =self::request_post($url, $post_data);
+
+        $res = json_decode($res,true);
+
+        if ($res) {
+
+            $expiredAt = now()->addDays(29);
+            // 缓存验证码 10分钟过期。
+            \Cache::put($key, $res, $expiredAt);
+            return $res;
+        }else{
+            return false;
+        }
+
+    }
+
+    /**
      * 验证用户头像合法性
      */
     public static function _checkHead($img){
 
-        $url = "https://fpp.market.alicloudapi.com/facepp/v3/detect";
-        $appCode = "26fe4929a9eb43b3a900675d55ccc557";
-        $headers = array();
-        array_push($headers, "Authorization:APPCODE " . $appCode);
+        $token=self::_getToken();
 
-        $re = self::set_curl($url,$img,1,1,$headers);
+        if($token){
+            $url = 'https://aip.baidubce.com/rest/2.0/solution/v1/face_audit?access_token=' . $token['access_token'];
+            $body = array(
+                "images" => $img
+            );
+            $res = self::request_post($url, $body);
 
-        return $re;
+            $res = json_decode($res,true);
+
+            dd($res);
+
+        }else{
+
+            return false;
+        }
+
+
+
     }
 
 
