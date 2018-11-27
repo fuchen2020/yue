@@ -14,6 +14,16 @@ use App\Http\Controllers\Controller;
 class BaseController extends Controller
 {
 
+    public static $re_msg = [
+        '201' =>'图片中不包含人脸',
+        '202' =>'图片中包含人脸',
+        '203' =>'图片中包含多个人脸',
+        '204' =>'图片中包含明星脸',
+        '205' =>'片中包含政治人物人脸',
+        '206' =>'片中包含公众人物人脸',
+        '207' =>'自定义人脸库识别未通过',
+    ];
+
     /**
      * 生成随机验证码
      * @param int $len
@@ -182,7 +192,16 @@ class BaseController extends Controller
 
             $res = json_decode($res,true);
 
-            dd($res);
+//            dd($res);
+
+            foreach ($res['result'] as $re ){
+
+                if(!$re['res_msg'] && !$re['res_code']){
+                    return $re['data']['face'];
+                }
+            }
+
+            return false;
 
         }else{
 
