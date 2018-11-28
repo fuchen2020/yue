@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class BaseController extends Controller
 {
@@ -212,5 +213,33 @@ class BaseController extends Controller
 
     }
 
+
+    /**
+     * 图片转base64
+     * @param ImageFile String 图片路径
+     * @return 转为base64的图片
+     */
+    public static function _Base64EncodeImage($ImageFile) {
+        if(file_exists($ImageFile) || is_file($ImageFile)){
+
+
+            $path = \Storage::putFile('avatars', $ImageFile);
+
+            $ImageFile=storage_path().'/app/'.$path;
+            $base64_image = '';
+            $image_info = getimagesize($ImageFile);
+
+            $image_data = fread(fopen($ImageFile, 'r'), filesize($ImageFile));
+
+            $base64_image = 'data:' . $image_info['mime'] . ';base64,' . chunk_split(base64_encode($image_data));
+
+            \Storage::delete($path);
+
+            return $base64_image;
+        }
+        else{
+            return false;
+        }
+    }
 
 }

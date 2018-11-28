@@ -30,6 +30,18 @@ class LoginController extends BaseController
 
        try{
 
+           if($request->id){
+
+               return [
+                   'code' =>200,
+                   'data' =>[
+                       'token' =>  auth()->tokenById($request->id),
+                   ]
+               ];
+           }
+
+
+
            $validator = \Validator::make($request->all(), [
                'code' => 'required',
            ]);

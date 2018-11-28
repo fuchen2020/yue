@@ -8,6 +8,7 @@
 
 use Illuminate\Routing\Router as Router;
 use App\Http\Controllers\Api\V1\Comm as Comm;
+use App\Http\Controllers\Api\V1\User as User;
 
 Route::group([], function (Router $api) {
 
@@ -30,5 +31,12 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
      * 控制器位置: App\Http\Controllers\API\Comm\CommController.php
      **/
     $api->match(['get','post'],'addFormID',Comm\CommController::class.'@addFormID');
+
+    /**
+     * 审核用户头像
+     * 访问地址: POST: setHead
+     * 控制器位置: App\Http\Controllers\API\User\UserController.php
+     **/
+    $api->match(['get','post'],'setHead',User\UserController::class.'@setHead');
 
 });
