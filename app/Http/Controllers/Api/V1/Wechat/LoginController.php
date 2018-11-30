@@ -11,13 +11,10 @@ namespace App\Http\Controllers\Api\V1\Wechat;
 
 use App\Http\Components\Code;
 use App\Http\Controllers\Api\BaseController;
-use App\Models\Api\User;
 use App\Models\Api\UserAuth;
 use App\Models\Api\UserVip;
 use EasyWeChat\Factory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 
 class LoginController extends BaseController
 {
@@ -142,5 +139,48 @@ class LoginController extends BaseController
 
    }
 
+    /**
+     * 解密微信手机号
+     * @param Request $request
+     * @return LoginController|\Illuminate\Http\JsonResponse
+     */
+   public function decryptPhone(Request $request){
+      try{
+
+          $validator = \Validator::make($request->all(), [
+              'session' => 'required',
+              'iv' => 'required',
+              'encryptData' => 'required',
+          ],[
+              'session.required'=>'解密session数据不能为空',
+              'iv.required'=>'解密iv数据不能为空',
+              'encryptData.required'=>'解密encryptData数据不能为空',
+          ]);
+
+          if ($validator->fails()) {
+              return response()->json([
+                  'code' => 400,
+                  'error' => $validator->errors()->first()
+              ]);
+          }
+
+          $config=config('wechat.config');
+
+          $app = Factory::miniProgram($config);
+
+          $decryptedData = $app->encryptor->decryptData($request->input('session'), $request->input('iv'), $request->input('encryptData'));
+
+          if ($decryptedData) {
+
+              dd($decryptedData);
+          }
+
+       
+      }catch (\Exception $exception){
+   
+         return $this->sendError(Code::FAIL, $exception->getMessage());
+      }
+   
+   }
 
 }

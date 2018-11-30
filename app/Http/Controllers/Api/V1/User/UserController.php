@@ -12,7 +12,9 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Components\Code;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\V1\Comm\UploadController;
+use App\Models\Api\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends BaseController
 {
@@ -26,7 +28,32 @@ class UserController extends BaseController
     public function baseInfo(Request $request){
         try{
 
+            $validator = \Validator::make($request->all(), [
+                'avatarUrl' => 'required',
+                'nickName' => 'required',
+                'gender' => 'required',
+                'province' => 'required',
+                'city' => 'required',
+            ],[
+                'avatarUrl.required' => '头像不能为空！',
+                'nickName.required' => '昵称不能为空！',
+                'gender.required' => '性别不能为空！',
+                'province.required' => '省份不能为空！',
+                'city.required' => '城市不能为空！',
+            ]);
 
+            if ($validator->fails()) {
+                return response()->json([
+                    'code' => 400,
+                    'error' => $validator->errors()->first()
+                ]);
+            }
+
+            $user_id = auth()->id();
+
+            \DB::table('user')->insert($request->all());
+
+            return $this->sendJson(200,'资料添加成功');
 
         }catch (\Exception $exception){
 
@@ -56,7 +83,6 @@ class UserController extends BaseController
                ]);
            }
 
-
            $file = $request->file('img');
 
            $base64_img = self::_Base64EncodeImage($file);
@@ -66,9 +92,9 @@ class UserController extends BaseController
            //检测头像是否合格
            if ($re) {
 
-//               $avatarUrl = (new UploadController())->upload($file,'head');
+               $avatarUrl = (new UploadController())->upload($file,'head');
 
-               $avatarUrl ='222222';
+//               $avatarUrl ='222222';
                if ($avatarUrl) {
                    return $this->sendJson(200,'头像审核通过',['avatarUrl'=>$avatarUrl]);
                }else{
@@ -85,6 +111,9 @@ class UserController extends BaseController
        }
 
     }
+
+
+
 
 
 }
