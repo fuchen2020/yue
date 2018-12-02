@@ -129,15 +129,24 @@ class UserController extends BaseController
        try{
 
            $validator = \Validator::make($request->all(), [
-               'mobile' => [
+               'phone' => [
                    'required',
                    'regex:/^1[3456789][0-9]{9}$/'
                ],
+               'head'=>'required',
+               'qq'=>'required',
+               'wx'=>'required',
                'code'=>'required',
+               'key'=>'required',
+
            ], [
-               'mobile.required' => '请输入手机号码',
-               'mobile.regex' => '请输入正确的手机号码',
+               'head.required' => '请上传真实头像',
+               'qq.required' => '请输入真实QQ号码',
+               'wx.required' => '请输入真实微信号码',
+               'phone.required' => '请输入真实手机号码',
+               'phone.regex' => '请输入正确的手机号码',
                'code.required' => '请输入短信验证码',
+               'key.required' => '验证码KEY不能为空',
            ]);
 
            if ($validator->fails()) {
@@ -147,9 +156,38 @@ class UserController extends BaseController
                ]);
            }
 
+           $verifyData = \Cache::get($request->key);
+
+           if (!$verifyData) {
+
+               return response()->json([
+                   'code' => 400,
+                   'status' => false,
+                   'msg' => '验证码已失效'
+               ]);
+           }
+
+           if (!hash_equals($verifyData['code'], $request->code)) {
+               return response()->json([
+                   'code' => 400,
+                   'status' => false,
+                   'msg' => '验证码错误'
+               ]);
+
+           }
+
+
            $user_id = auth()->id();
 
-           \DB::table('user')->insert($request->all());
+           $data=[
+
+             'phone' => $request->phone,
+             'head'  => $request->head,
+             'qq'  => $request->qq,
+             'wx'  => $request->wx,
+           ];
+
+           \DB::table('user')->where('id',$user_id)->update($data);
 
            return $this->sendJson(200,'资料添加成功');
 

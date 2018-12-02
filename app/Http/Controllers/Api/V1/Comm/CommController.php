@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Models\Api\Banner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Overtrue\EasySms\EasySms;
 
 class CommController extends BaseController
 {
@@ -92,33 +93,45 @@ class CommController extends BaseController
 
 
     /**
-     * 发送短信(注册,改密)
-     * @param SendSmsRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     *
+     * 发送短信验证码
+     * @param Request $request
+     * @return CommController|\Illuminate\Http\JsonResponse
      */
-    public function sendSms(SendSmsRequest $request){
+    public function sendSms(Request $request){
 
         try{
+
+            $validator = Validator::make($request->all(), [
+                'phone' => [
+                    'required',
+                    'regex:/^1[3456789][0-9]{9}$/'
+                ],
+            ], [
+                'phone.required' => '请输入手机号码',
+                'phone.regex' => '请输入正确的手机号码',
+            ]);
+            if ($validator->fails()) {
+                return $this->sendError(Code::FAIL2,$validator->errors()->first());
+            }
 
             $phone = $request->input('phone');
             $code = str_pad(random_int(1, 9999), 4, 0, STR_PAD_LEFT);
             $easySms = new EasySms(config('easysms.config'));
             try {
                 switch ($request->input('type')){
-                    //注册
-                    case 'reg':
-                        $result = $easySms->send($phone, [
-                            'template' => config('easysms.tempLet_id.reg'),
+                    //验证
+                    case 'check':
+                         $easySms->send($phone, [
+                            'template' => config('easysms.tempLet_id.check'),
                             'data' => [
                                 'code' => $code
                             ],
                         ]);
                         break;
-                    //修改密码
-                    case 'revise':
-                        $result = $easySms->send($phone, [
-                            'template' => config('easysms.tempLet_id.revise'),
+                    //付款
+                    case 'pay':
+                         $easySms->send($phone, [
+                            'template' => config('easysms.tempLet_id.pay'),
                             'data' => [
                                 'code' => $code
                             ],
@@ -154,5 +167,35 @@ class CommController extends BaseController
         }
 
     }
+
+    /**
+     * 上传图片
+     * @param Request $request
+     * @return CommController|\Illuminate\Http\JsonResponse
+     */
+    public function upload(Request $request){
+       try{
+
+           $files=$request->file();
+
+           $path=(new UploadController())->upload($files,'');
+           if ($path) {
+               $data=[
+                   'path'=>$path,
+               ];
+
+               return $this->sendJson(200,'上传成功',$data);
+
+           }else{
+               return $this->sendError(Code::FAIL2,'上传失败');
+           }
+
+       }catch (\Exception $exception){
+
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+
+    }
+
 
 }

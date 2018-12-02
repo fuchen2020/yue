@@ -39,4 +39,18 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
      **/
     $api->match(['get','post'],'setHead',User\UserController::class.'@setHead');
 
+    /**
+     * 上传图片
+     * 访问地址: POST: upload
+     * 控制器位置: App\Http\Controllers\API\Comm\CommController.php
+     **/
+    $api->match(['get','post'],'upload',Comm\CommController::class.'@upload');
+
+    /**
+     * 发送短信验证码
+     * 访问地址: POST: sendSms
+     * 控制器位置: App\Http\Controllers\API\Comm\CommController.php
+     **/
+    $api->match(['get','post'],'sendSms',Comm\CommController::class.'@sendSms');
+
 });

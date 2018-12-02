@@ -48,6 +48,14 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
          **/
         $api->match(['get','post'],'decryptPhone',WeChat\LoginController::class.'@decryptPhone');
 
+        /**
+         * 新增实名资料信息
+         * 访问地址: POST: authorise
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'authorise',User\UserController::class.'@authorise');
+
+
     });
 
 });
