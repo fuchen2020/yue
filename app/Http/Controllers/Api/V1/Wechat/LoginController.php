@@ -27,15 +27,15 @@ class LoginController extends BaseController
 
        try{
 
-           if($request->id){
-
-               return [
-                   'code' =>200,
-                   'data' =>[
-                       'token' =>  auth()->tokenById($request->id),
-                   ]
-               ];
-           }
+//           if($request->id){
+//
+//               return [
+//                   'code' =>200,
+//                   'data' =>[
+//                       'token' =>  auth()->tokenById($request->id),
+//                   ]
+//               ];
+//           }
 
 
 
@@ -91,7 +91,7 @@ class LoginController extends BaseController
                    try{
                        $user_id = \DB::table('user_auth')->insertGetId([
                           'm_openid' => $openid,
-                           'lgt' => $lat,
+                           'lat' => $lat,
                            'lon' => $lon,
                            'os_info' => $os_info,
                            'created_at' => date('Y-m-d H:i:s'),
@@ -103,7 +103,7 @@ class LoginController extends BaseController
                        ]);
 
                        $info = [
-                           'token' => auth()->tokenById($userAuth->id),
+                           'token' => auth()->tokenById($user_id),
                            'is_vip' => false,
                            'is_base_info' => false,
                            'is_real_name' => false,
@@ -119,9 +119,10 @@ class LoginController extends BaseController
                        ]);
 
                    }catch (\Exception $exception){
+
                        \DB::rollBack();
                        return response()->json([
-                           'code' =>400,
+                           'code' =>500,
                            'status' => false,
                            'msg' => '登陆授权失败!',
                            'data' =>''
@@ -148,13 +149,13 @@ class LoginController extends BaseController
       try{
 
           $validator = \Validator::make($request->all(), [
-              'session' => 'required',
+              'code' => 'required',
               'iv' => 'required',
-              'encryptData' => 'required',
+              'encryptedData' => 'required',
           ],[
-              'session.required'=>'解密session数据不能为空',
+              'code.required'=>'解密code数据不能为空',
               'iv.required'=>'解密iv数据不能为空',
-              'encryptData.required'=>'解密encryptData数据不能为空',
+              'encryptedData.required'=>'解密encryptedData数据不能为空',
           ]);
 
           if ($validator->fails()) {
@@ -168,11 +169,24 @@ class LoginController extends BaseController
 
           $app = Factory::miniProgram($config);
 
-          $decryptedData = $app->encryptor->decryptData($request->input('session'), $request->input('iv'), $request->input('encryptData'));
+          $user=$app->auth->session($request->input('code'));
+
+          $decryptedData=$this->encrypted(
+              $request->input('encryptedData'),
+              $user['session_key'],
+              $config['app_id'],
+              $request->input('iv')
+          );
 
           if ($decryptedData) {
 
-              dd($decryptedData);
+              return $this->sendJson(200,'获取手机成功！',[
+                 'phone' =>  $decryptedData['purePhoneNumber'],
+                 'phone2' =>  $decryptedData['phoneNumber'],
+              ]);
+
+          }else{
+              return $this->sendError(Code::FAIL2,'暂无数据');
           }
 
        
@@ -182,5 +196,7 @@ class LoginController extends BaseController
       }
    
    }
+
+
 
 }

@@ -29,17 +29,24 @@ class UserController extends BaseController
         try{
 
             $validator = \Validator::make($request->all(), [
-                'avatarUrl' => 'required',
-                'nickName' => 'required',
-                'gender' => 'required',
+                'sex' => 'required',
+                'marriage' => 'required',
                 'province' => 'required',
                 'city' => 'required',
+                'birthday' => 'required',
+                'tall' => 'required',
+                'education' => 'required',
+                'earning' => 'required',
+
             ],[
-                'avatarUrl.required' => '头像不能为空！',
-                'nickName.required' => '昵称不能为空！',
-                'gender.required' => '性别不能为空！',
+                'sex.required' => '性别不能为空！',
+                'marriage.required' => '婚姻状况不能为空！',
                 'province.required' => '省份不能为空！',
                 'city.required' => '城市不能为空！',
+                'birthday.required' => '出生日期不能为空！',
+                'tall.required' => '身高不能为空！',
+                'education.required' => '学历不能为空！',
+                'earning.required' => '收入不能为空！',
             ]);
 
             if ($validator->fails()) {
@@ -51,7 +58,7 @@ class UserController extends BaseController
 
             $user_id = auth()->id();
 
-            \DB::table('user')->insert($request->all());
+            \DB::table('user')->where('id',$user_id)->update($request->all());
 
             return $this->sendJson(200,'资料添加成功');
 
@@ -83,18 +90,19 @@ class UserController extends BaseController
                ]);
            }
 
-           $file = $request->file('img');
+//           $file = $request->file('img');
 
-           $base64_img = self::_Base64EncodeImage($file);
+//           $base64_img = self::_Base64EncodeImage($file);
+           $base64_img = $request->img;
 
            $re = self::_checkHead($base64_img);
 
            //检测头像是否合格
            if ($re) {
 
-               $avatarUrl = (new UploadController())->upload($file,'head');
+//               $avatarUrl = (new UploadController())->upload($file,'head');
 
-//               $avatarUrl ='222222';
+               $avatarUrl ='222222';
                if ($avatarUrl) {
                    return $this->sendJson(200,'头像审核通过',['avatarUrl'=>$avatarUrl]);
                }else{
@@ -112,7 +120,45 @@ class UserController extends BaseController
 
     }
 
+    /**
+     * 更新用户验证资料（头像，手机号，微信，QQ）
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function authorise(Request $request){
+       try{
 
+           $validator = \Validator::make($request->all(), [
+               'mobile' => [
+                   'required',
+                   'regex:/^1[3456789][0-9]{9}$/'
+               ],
+               'code'=>'required',
+           ], [
+               'mobile.required' => '请输入手机号码',
+               'mobile.regex' => '请输入正确的手机号码',
+               'code.required' => '请输入短信验证码',
+           ]);
+
+           if ($validator->fails()) {
+               return response()->json([
+                   'code' => 400,
+                   'error' => $validator->errors()->first()
+               ]);
+           }
+
+           $user_id = auth()->id();
+
+           \DB::table('user')->insert($request->all());
+
+           return $this->sendJson(200,'资料添加成功');
+
+       }catch (\Exception $exception){
+
+           return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
 
 
 

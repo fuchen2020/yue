@@ -195,6 +195,7 @@ class BaseController extends Controller
 
 //            dd($res);
 
+
             foreach ($res['result'] as $re ){
 
                 if(!$re['res_msg'] && !$re['res_code']){
@@ -241,5 +242,31 @@ class BaseController extends Controller
             return false;
         }
     }
+
+
+    /**
+     * 微信小程序数据解密
+     * @param $encryptedData
+     * @param $sessionKey
+     * @param $appid
+     * @param $iv
+     * @return int
+     */
+
+    public function encrypted($encryptedData,$sessionKey,$appid,$iv){
+
+        require app_path('/Lib/Jmwx/wxBizDataCrypt.php');
+
+        $pc = new \WXBizDataCrypt($appid, $sessionKey);
+        $errCode = $pc->decryptData($encryptedData, $iv, $data);
+
+        if ($errCode == 0) {
+            return json_decode($data,true);
+        } else {
+            return $errCode;
+        }
+
+    }
+
 
 }

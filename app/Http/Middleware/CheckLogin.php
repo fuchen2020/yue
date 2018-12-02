@@ -17,7 +17,7 @@ class CheckLogin
 
         $is_user=auth()->user();
         if (empty($is_user)) {
-            return response()->json(['msg' => '请重新登录','code'=>400]);
+            return response()->json(['msg' => '请重新登录','code'=>4001]);
         }else{
 //            $user_id=$is_user->id;
 //            if ($is_user->is_frozen==1){

@@ -23,8 +23,6 @@ Route::group([], function (Router $api) {
 
     });
 
-    $api->match(['get','post'],'baseInfo',User\UserController::class.'@baseInfo');
-
 
 });
 
@@ -36,7 +34,19 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
     //用户账户相关
     $api->group(['prefix' => 'account'], function (Router $api) {
 
+        /**
+         * 用户基础信息
+         * 访问地址: POST: baseInfo
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'baseInfo',User\UserController::class.'@baseInfo');
 
+        /**
+         * 解密手机号
+         * 访问地址: POST: decryptPhone
+         * 控制器位置: App\Http\Controllers\API\WeChat\LoginController.php
+         **/
+        $api->match(['get','post'],'decryptPhone',WeChat\LoginController::class.'@decryptPhone');
 
     });
 

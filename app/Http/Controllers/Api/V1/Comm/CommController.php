@@ -89,5 +89,70 @@ class CommController extends BaseController
        }
 
     }
-    
+
+
+    /**
+     * 发送短信(注册,改密)
+     * @param SendSmsRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     *
+     */
+    public function sendSms(SendSmsRequest $request){
+
+        try{
+
+            $phone = $request->input('phone');
+            $code = str_pad(random_int(1, 9999), 4, 0, STR_PAD_LEFT);
+            $easySms = new EasySms(config('easysms.config'));
+            try {
+                switch ($request->input('type')){
+                    //注册
+                    case 'reg':
+                        $result = $easySms->send($phone, [
+                            'template' => config('easysms.tempLet_id.reg'),
+                            'data' => [
+                                'code' => $code
+                            ],
+                        ]);
+                        break;
+                    //修改密码
+                    case 'revise':
+                        $result = $easySms->send($phone, [
+                            'template' => config('easysms.tempLet_id.revise'),
+                            'data' => [
+                                'code' => $code
+                            ],
+                        ]);
+                        break;
+                }
+
+            } catch (\Overtrue\EasySms\Exceptions\NoGatewayAvailableException $exception) {
+                $message = $exception->getException('aliyun')->getMessage();
+                return response()->json([
+                    'code'=>400,
+                    'msg'=>$message ?: '短信发送异常',
+                    'status'=>false,
+                ]);
+            }
+
+            $key = 'verificationCode_'.str_random(15);
+            $expiredAt = now()->addMinutes(10);
+            // 缓存验证码 10分钟过期。
+            \Cache::put($key, ['phone' => $phone, 'code' => $code], $expiredAt);
+            return response()->json([
+                'code'=>200,
+                'msg'=>'短信发送成功!',
+                'status'=>true,
+                'data'=>[
+                    'verification_key'=>$key
+                ],
+            ]);
+
+        }catch (\Exception $exception){
+
+            return response()->json(['msg' => '方法执行异常','code'=>500,'err'=>$exception->getMessage()]);
+        }
+
+    }
+
 }
