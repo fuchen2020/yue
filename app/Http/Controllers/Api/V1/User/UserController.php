@@ -79,8 +79,10 @@ class UserController extends BaseController
 
            $validator = \Validator::make($request->all(), [
                'img' => 'required',
+               'img_file' => 'required',
            ],[
-               'img.required' => '文件对象不能为空！'
+               'img.required' => '文件对象不能为空！',
+               'img_file.required' => '文件对象不能为空！'
            ]);
 
            if ($validator->fails()) {
@@ -90,19 +92,17 @@ class UserController extends BaseController
                ]);
            }
 
-//           $file = $request->file('img');
+           $file = $request->file('img_file');
 
-//           $base64_img = self::_Base64EncodeImage($file);
            $base64_img = $request->img;
 
            $re = self::_checkHead($base64_img);
 
            //检测头像是否合格
-           if ($re) {
+           if ($re['status']) {
 
-//               $avatarUrl = (new UploadController())->upload($file,'head');
+               $avatarUrl = (new UploadController())->upload($file,'head');
 
-               $avatarUrl ='222222';
                if ($avatarUrl) {
                    return $this->sendJson(200,'头像审核通过',['avatarUrl'=>$avatarUrl]);
                }else{
@@ -198,6 +198,115 @@ class UserController extends BaseController
     
     }
 
+    /**
+     * 获取相册列表-----------------------
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function getPhotoList(){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
 
+    /**
+     * 新增相片（修改）
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function addPhoto(){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
 
+    /**
+     * 获取一条随机内心独白
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function getHeart(){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    /**
+     * 新增内心独白
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function addHeart(){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    /**
+     * 获取自己的内心独白
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function getMyHeart(){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    /**
+     * 获取基础资料(就是前面新增基础资料的信息)
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function getBaseInfo(){
+       try{
+           
+
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    /**
+     * 修改基础资料
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function editBaseInfo(){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
 }

@@ -29,17 +29,18 @@ return [
                 'file' => '/tmp/easy-sms.log',
             ],
             'aliyun' => [
-                'access_key_id' => 'LTAI4bYV43jJ43pb',
-                'access_key_secret' => 'gdyE435mhfTZ33JjZguboltUvD5HJF',
-                'sign_name' => '艾艾语音',
+                'access_key_id' => 'LTAIYPPyJF92o3HQ',
+                'access_key_secret' => 'wN9mqFdcnpLVy0Lt1spRO52pgRQi77',
+                'sign_name' => '圆缘科技',
             ],
         ],
     ],
 
     'tempLet_id' => [
 
-        'check' => 'SMS_143685233', //检测
+        'check' => 'SMS_152213146', //检测
         'pay' => 'SMS_143685234', //支付
+        'huX' => 'SMS_143861585', //互选成功
     ],
 
 

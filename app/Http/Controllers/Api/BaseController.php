@@ -23,6 +23,12 @@ class BaseController extends Controller
         '205' =>'片中包含政治人物人脸',
         '206' =>'片中包含公众人物人脸',
         '207' =>'自定义人脸库识别未通过',
+        '301'=>'图片中包含色情内容',
+        '302'=>	'图片中包含性感内容，如穿着比较暴露',
+        '401'=>	'图片中包含血腥暴力场景内容',
+        '501'=>	'图像美观度低于阀值',
+        '502'=>	'图像美观度高于阀值',
+        '503'=>	'图像美观度不等于阀值',
     ];
 
     /**
@@ -193,21 +199,30 @@ class BaseController extends Controller
 
             $res = json_decode($res,true);
 
-//            dd($res);
-
-
             foreach ($res['result'] as $re ){
 
-                if(!$re['res_msg'] && !$re['res_code']){
-                    return $re['data']['face'];
-                }
-            }
+                if($re['res_code']==0 || $re['res_msg'][0]==206){
+                    return [
+                        'status' => true,
+                        'msg' => '图像审核通过！'
+                    ];
+                }else{
 
-            return false;
+                    return [
+                        'status' => false,
+                        'msg' => self::$re_msg[$re['res_msg'][0]],
+                    ];
+                }
+
+
+            }
 
         }else{
 
-            return false;
+            return [
+                'status' =>false,
+                'msg' => '图像审核失败！'
+            ];
         }
 
 
@@ -241,6 +256,71 @@ class BaseController extends Controller
         else{
             return false;
         }
+    }
+
+    /**
+     * base64 转图片 并保存
+     * @param $base64_image_content
+     * @param $path
+     * @return bool|string
+     */
+    public static function _base64_image_content($base64_image_content,$path){
+        //匹配出图片的格式
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64_image_content, $result)){
+            $type = $result[2];
+            $new_file = '/upload/images/'.$path.'/'.date('Ymd',time())."/";
+            if(!file_exists($new_file)){
+                //检查是否有该文件夹，如果没有就创建，并给予最高权限
+                mkdir($new_file, 0777);
+            }
+            $new_file = $new_file.md5(time()+rand(1111,6666)).".{$type}";
+            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))){
+                return '/'.$new_file;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+
+
+
+    }
+
+    /**
+
+     * base64转码图片
+
+     * @param $base64
+
+     * @param string $path
+
+     * @return bool|string
+
+     */
+
+    public static function _get_base64_img($base64,$path = 'qt'){
+
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64, $result)){
+
+            $type = $result[2];
+
+            $new_file = '/upload/images/'.$path.'/'.date('Ymd',time())."/".md5(time()+rand(1111,6666)).".{$type}";
+
+            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64)))){
+
+                return $new_file;
+
+            }else{
+
+                return  false;
+
+            }
+
+        }else{
+            return false;
+        }
+
     }
 
 
