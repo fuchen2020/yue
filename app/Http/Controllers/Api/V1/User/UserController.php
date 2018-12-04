@@ -12,7 +12,10 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Components\Code;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\V1\Comm\UploadController;
+use App\Http\Resources\UserphotoList;
+use App\Models\Api\Monologue;
 use App\Models\Api\User;
+use App\Models\Api\UserPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -199,12 +202,72 @@ class UserController extends BaseController
     }
 
     /**
-     * 获取相册列表-----------------------
+     * 获取相册列表
+     * @param Request $request
      * @return UserController|\Illuminate\Http\JsonResponse
      */
-    public function getPhotoList(){
+    public function getPhotoList(Request $request){
        try{
+
+           $user_id = auth()->id();
+           $photo = UserPhoto::where('user_id',$user_id)->get();
+
+           if ($photo) {
+               return $this->sendJson(200,'获取相册成功',[
+                   'photo' => UserphotoList::collection($photo)
+               ]);
+           }else{
+
+               return $this->sendError(200,'暂无数据');
+           }
+
         
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    /**
+     * 新增相片
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function addPhoto( Request $request){
+       try{
+           $validator = \Validator::make($request->all(), [
+               'img' => 'required',
+           ],[
+               'img.required' => '文件不能为空！',
+           ]);
+
+           if ($validator->fails()) {
+               return response()->json([
+                   'code' => 400,
+                   'error' => $validator->errors()->first()
+               ]);
+           }
+
+           $file = $request->file('img');
+
+           $user_id = auth()->id();
+
+            $re = (new UploadController())->upload($file,'photo');
+
+           if ($re) {
+
+               DB::table('user_photo')->insert([
+                  'user_id' => $user_id,
+                   'img' => $re,
+                   'created_at' => date('Y-m-d H:i:s'),
+
+               ]);
+
+               return $this->sendJson(200,'上传成功',$re);
+           }else{
+               return $this->sendError(Code::FAIL2,'上传失败');
+           }
            
         
        }catch (\Exception $exception){
@@ -215,19 +278,51 @@ class UserController extends BaseController
     }
 
     /**
-     * 新增相片（修改）
+     * 删除相片
+     * @param Request $request
      * @return UserController|\Illuminate\Http\JsonResponse
      */
-    public function addPhoto(){
+    public function delPhoto( Request $request){
        try{
-        
-           
-        
+
+           $validator = \Validator::make($request->all(), [
+               'photo_id' => 'required',
+               'path' => 'required',
+           ],[
+               'photo_id.required' => '文件ID不能为空！',
+               'path.required' => '文件路径不能为空！'
+           ]);
+
+           if ($validator->fails()) {
+               return response()->json([
+                   'code' => 400,
+                   'error' => $validator->errors()->first()
+               ]);
+           }
+
+           $photo_id = $request->id;
+           $path = $request->path;
+           $user_id = auth()->id();
+
+           $re = UserPhoto::where('id',$photo_id)
+               ->where('user_id',$user_id)
+               ->delete();
+
+           if ($re) {
+               if(file_exists($path)){
+                   unlink($path);
+               }
+               return $this->sendJson(200,'上传成功',$re);
+           }else{
+               return $this->sendError(Code::FAIL2,'上传失败');
+           }
+
+
        }catch (\Exception $exception){
-    
+
           return $this->sendError(Code::FAIL, $exception->getMessage());
        }
-    
+
     }
 
     /**
@@ -236,9 +331,19 @@ class UserController extends BaseController
      */
     public function getHeart(){
        try{
-        
-           
-        
+
+           $data=Monologue::orderBy(\DB::raw('RAND()'))
+               ->take(1)
+               ->get();
+           if ($data) {
+
+               return $this->sendJson(200,'获取成功');
+           }else{
+               return $this->sendError(200,'暂无数据');
+           }
+
+
+
        }catch (\Exception $exception){
     
           return $this->sendError(Code::FAIL, $exception->getMessage());
@@ -263,7 +368,7 @@ class UserController extends BaseController
     }
 
     /**
-     * 获取自己的内心独白
+     * 获取自己的内心独白--------------------------
      * @return UserController|\Illuminate\Http\JsonResponse
      */
     public function getMyHeart(){

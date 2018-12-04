@@ -55,6 +55,34 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
          **/
         $api->match(['get','post'],'authorise',User\UserController::class.'@authorise');
 
+        /**
+         * 获取相册列表
+         * 访问地址: POST: getPhotoList
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'getPhotoList',User\UserController::class.'@getPhotoList');
+
+        /**
+         * 添加相册照片
+         * 访问地址: POST: addPhoto
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'addPhoto',User\UserController::class.'@addPhoto');
+
+        /**
+         * 删除相册照片
+         * 访问地址: POST: delPhoto
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'delPhoto',User\UserController::class.'@delPhoto');
+
+        /**
+         * 获取随机内心独白
+         * 访问地址: POST: getHeart
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'getHeart',User\UserController::class.'@getHeart');
+
 
     });
 
