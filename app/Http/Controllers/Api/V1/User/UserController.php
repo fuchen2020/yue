@@ -14,7 +14,6 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\V1\Comm\UploadController;
 use App\Http\Resources\UserphotoList;
 use App\Models\Api\Monologue;
-use App\Models\Api\User;
 use App\Models\Api\UserPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -353,12 +352,34 @@ class UserController extends BaseController
 
     /**
      * 新增内心独白
+     * @param Request $request
      * @return UserController|\Illuminate\Http\JsonResponse
      */
-    public function addHeart(){
+    public function addHeart(Request $request){
        try{
-        
-           
+           $validator = \Validator::make($request->all(), [
+               'heart' => 'required',
+           ],[
+               'heart.required' => '内心独白内容不能为空！',
+           ]);
+
+           if ($validator->fails()) {
+               return response()->json([
+                   'code' => 400,
+                   'error' => $validator->errors()->first()
+               ]);
+           }
+
+           $user = auth()->user();
+
+           $user->heart = $request->heart;
+
+           if ($user->save()) {
+               return $this->sendJson(200,'添加成功');
+           }else{
+               return $this->sendError(400,'添加失败');
+           }
+
         
        }catch (\Exception $exception){
     
@@ -368,13 +389,17 @@ class UserController extends BaseController
     }
 
     /**
-     * 获取自己的内心独白--------------------------
+     * 获取自己的内心独白
      * @return UserController|\Illuminate\Http\JsonResponse
      */
     public function getMyHeart(){
        try{
-        
-           
+
+           $user = auth()->user();
+
+           return $this->sendJson(200,'获取成功',[
+              'heart' => $user->heart?:'',
+           ]);
         
        }catch (\Exception $exception){
     
@@ -389,7 +414,54 @@ class UserController extends BaseController
      */
     public function getBaseInfo(){
        try{
-           
+
+           $user = auth()->user();
+
+           return $this->sendJson(200,'获取成功',[
+              'nickname' => $user->nickname,
+               'tall' => $user->tall, //身高
+               'marriage' => $user->marriage, //婚姻状况  1=未婚  2=离异  3=丧偶
+               'native_place' => $user->native_place, //籍贯
+               'school' => $user->school, //毕业院校
+               'housing' => $user->housing, //住房状况
+               'is_gai' => $user->is_gai //基本资料实名后是否修改过
+           ]);
+
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    /**
+     * 修改基础资料(字段和新增时不一样)
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function editBaseInfo(Request $request){
+       try{
+           $param = $request->all();
+           $user = auth()->user();
+           if ($param) {
+
+               if ($user->is_gai || $this->checkField($param,['nickname','tall','marriage','native_place','housing']) ) {
+
+                   if(array_key_exists('occupation',$param))
+                   $user->occupation = $param['occupation'];
+                   if (array_key_exists('salary',$param))
+                   $user->salary = $param['salary'];
+                   if(array_key_exists('living_place',$param))
+                   $user->living_place = $param['living_place'];
+                   $user->save();
+                   return $this->sendJson(200,'修改成功');
+
+               }else{
+                   \DB::table('user')->where('id',$user->id)->update($param);
+                   return $this->sendJson(200,'修改成功');
+               }
+
+           }
 
         
        }catch (\Exception $exception){
@@ -400,10 +472,28 @@ class UserController extends BaseController
     }
 
     /**
-     * 修改基础资料
+     * 检测是否存在相应字段
+     * @param $param
+     * @param $fields
+     * @return bool
+     */
+    function  checkField($param,$fields){
+
+        foreach ($fields as $item ){
+            if (array_key_exists($item,$param))
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * 获取择偶要求信息
+     * @param Request $request
      * @return UserController|\Illuminate\Http\JsonResponse
      */
-    public function editBaseInfo(){
+    public function getAskFor(Request $request){
        try{
         
            
@@ -414,4 +504,74 @@ class UserController extends BaseController
        }
     
     }
+
+    /**
+     * 修改择偶要求信息
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function setAskFor(Request $request){
+       try{
+
+
+
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    /**
+     * 获取家庭情况信息
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function getFamily(Request $request){
+       try{
+
+
+
+       }catch (\Exception $exception){
+
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+
+    }
+
+    /**
+     * 修改家庭情况信息
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function editFamily(Request $request){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    /**
+     * 修改隐身模式
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function editHide(Request $request){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
+    
 }

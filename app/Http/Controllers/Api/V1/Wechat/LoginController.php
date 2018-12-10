@@ -101,6 +101,11 @@ class LoginController extends BaseController
                            'id' => $user_id,
                            'created_at' => date('Y-m-d H:i:s'),
                        ]);
+                       //择偶需求
+                       \DB::table('user_require')->insert([
+                           'user_id' => $user_id,
+                           'created_at' => date('Y-m-d H:i:s'),
+                       ]);
 
                        $info = [
                            'token' => auth()->tokenById($user_id),

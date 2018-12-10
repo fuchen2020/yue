@@ -30,5 +30,6 @@ password: 4212c233
  *
  */
 
+//图像生成文章  https://laravel-china.org/articles/18418
 
 //todo  头像审核   短信模板    确认信息表单字段

@@ -4,8 +4,121 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9fd1defef48b902d5d39ab3079f29d44",
+    "content-hash": "6ea73920ef2b225ecf354bab2ae279a4",
     "packages": [
+        {
+            "name": "anam/phantomjs-linux-x86-binary",
+            "version": "v2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/anam-hossain/phantomjs-linux-x86-binary.git",
+                "reference": "cb90cd0e7bd4ad34f52e6834783b1c5adae15014"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/anam-hossain/phantomjs-linux-x86-binary/zipball/cb90cd0e7bd4ad34f52e6834783b1c5adae15014",
+                "reference": "cb90cd0e7bd4ad34f52e6834783b1c5adae15014",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "bin": [
+                "bin/phantomjs"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Anam\\PhantomLinux\\": "/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Anam hossain",
+                    "email": "enam33@gmail.com"
+                }
+            ],
+            "description": "PhantomJS static linked binary for 64 bit linux systems. Most of Linux distributions are supported including Ubuntu, Debian, Fedora and CentOS.",
+            "homepage": "http://phantomjs.org/download.html",
+            "keywords": [
+                "binary",
+                "phantomjs",
+                "phantomjs binary"
+            ],
+            "time": "2016-04-05T05:24:48+00:00"
+        },
+        {
+            "name": "anam/phantommagick",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/anam-hossain/phantommagick.git",
+                "reference": "7da1cb92198717e5aba7a4a8c9b8eb61c3ae12eb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/anam-hossain/phantommagick/zipball/7da1cb92198717e5aba7a4a8c9b8eb61c3ae12eb",
+                "reference": "7da1cb92198717e5aba7a4a8c9b8eb61c3ae12eb",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "league/flysystem": "~1.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9",
+                "phpunit/phpunit": "~4.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Anam\\PhantomMagick\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Anam hossain",
+                    "email": "enam33@gmail.com"
+                }
+            ],
+            "description": "PhantomMagick provides a simple API to ease the process of converting HTML to PDF or images",
+            "homepage": "https://github.com/anam-hossain/phantommagick",
+            "keywords": [
+                "Html 2 jpg",
+                "Html 2 pdf",
+                "Laravel pdf",
+                "Phantom",
+                "Screen capture",
+                "converter",
+                "html to image",
+                "html to pdf",
+                "html to png",
+                "image converter",
+                "invoice",
+                "laravel",
+                "pdf",
+                "pdf converter",
+                "phantomjs"
+            ],
+            "time": "2017-08-07T09:06:12+00:00"
+        },
         {
             "name": "dnoegel/php-xdg-base-dir",
             "version": "0.1",
@@ -604,6 +717,68 @@
                 "url"
             ],
             "time": "2017-03-20T17:10:46+00:00"
+        },
+        {
+            "name": "ibrand/laravel-miniprogram-poster",
+            "version": "v2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ibrandcc/laravel-miniprogram-poster.git",
+                "reference": "d20cf967d985848fba573b38086fcff956e123c3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ibrandcc/laravel-miniprogram-poster/zipball/d20cf967d985848fba573b38086fcff956e123c3",
+                "reference": "d20cf967d985848fba573b38086fcff956e123c3",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "anam/phantomjs-linux-x86-binary": "~2.1.1",
+                "anam/phantommagick": "~2.0",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "orchestra/database": "~3.5",
+                "orchestra/testbench": "~3.5",
+                "phpunit/phpunit": "~6.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "iBrand\\Miniprogram\\Poster\\PhantoMmagickServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "iBrand\\Miniprogram\\Poster\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "tangqi",
+                    "email": "tangqi@element.vip"
+                }
+            ],
+            "description": "iBrand's laravel miniprogram poster tool",
+            "keywords": [
+                "component",
+                "ibrand",
+                "miniprogram",
+                "poster"
+            ],
+            "time": "2018-11-29T14:51:11+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",

@@ -83,6 +83,36 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
          **/
         $api->match(['get','post'],'getHeart',User\UserController::class.'@getHeart');
 
+        /**
+         * 新增内心独白
+         * 访问地址: POST: addHeart
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'addHeart',User\UserController::class.'@addHeart');
+        /**
+         * 获取自己的内心独白
+         * 访问地址: POST: getMyHeart
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'getMyHeart',User\UserController::class.'@getMyHeart');
+
+        /**
+         * 获取基础资料(就是前面新增基础资料的信息)
+         * 访问地址: POST: getBaseInfo
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'getBaseInfo',User\UserController::class.'@getBaseInfo');
+
+        /**
+         * 修改基础资料(字段和新增时不一样)
+         * 访问地址: POST: editBaseInfo
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'editBaseInfo',User\UserController::class.'@editBaseInfo');
+
+
+
+
 
     });
 
