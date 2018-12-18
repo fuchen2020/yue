@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Http\Controllers\Controller;
+use App\Models\Api\Config;
 use Illuminate\Support\Facades\Storage;
 
 class BaseController extends Controller
@@ -346,6 +347,18 @@ class BaseController extends Controller
             return $errCode;
         }
 
+    }
+
+    /**
+     * 获取配置参数
+     * @param $name
+     * @return mixed
+     */
+    public static function _getConfig($name){
+
+         $value = Config::where('name',$name)->value('value');
+
+         return $value;
     }
 
 

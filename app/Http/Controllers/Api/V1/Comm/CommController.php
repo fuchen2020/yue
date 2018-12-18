@@ -197,5 +197,25 @@ class CommController extends BaseController
 
     }
 
+    /**
+     * 获取客服微信号图片
+     * @param Request $request
+     * @return CommController|\Illuminate\Http\JsonResponse
+     */
+    public function getService(Request $request){
+       try{
+
+           $img = self::_getConfig('SER_WX_IMG');
+
+           return $this->sendJson(200,'获取成功！',$img);
+
+       }catch (\Exception $exception){
+
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+
+    }
+
+
 
 }

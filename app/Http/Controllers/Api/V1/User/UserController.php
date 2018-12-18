@@ -14,7 +14,9 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\V1\Comm\UploadController;
 use App\Http\Resources\UserphotoList;
 use App\Models\Api\Monologue;
+use App\Models\Api\UserExtend;
 use App\Models\Api\UserPhoto;
+use App\Models\Api\UserRequire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -495,8 +497,17 @@ class UserController extends BaseController
      */
     public function getAskFor(Request $request){
        try{
-        
-           
+           $user_id = auth()->id();
+
+           $require = UserRequire::where('user_id',$user_id)->first();
+
+           if ($require) {
+
+               return $this->sendJson(200,'获取成功！',$require);
+           }else {
+
+               return $this->sendJson(200,'暂无数据！',new \stdClass());
+           }
         
        }catch (\Exception $exception){
     
@@ -513,6 +524,17 @@ class UserController extends BaseController
     public function setAskFor(Request $request){
        try{
 
+           $user_id = auth()->id();
+
+           $param = $request->all();
+
+           if ($param) {
+
+               \DB::table('user_require')->where('user_id',$user_id)->update($param);
+           }else{
+
+               return $this->sendError(Code::FAIL2,'参数不能为空！');
+           }
 
 
        }catch (\Exception $exception){
@@ -530,7 +552,18 @@ class UserController extends BaseController
     public function getFamily(Request $request){
        try{
 
+           $user_id = auth()->id();
 
+           $family = UserExtend::where('user_id',$user_id)->first();
+
+           if ($family) {
+
+               return $this->sendJson(200,'获取成功！',$family);
+           }else {
+
+               return $this->sendJson(200,'暂无数据！',new \stdClass());
+
+           }
 
        }catch (\Exception $exception){
 
@@ -546,7 +579,18 @@ class UserController extends BaseController
      */
     public function editFamily(Request $request){
        try{
-        
+
+           $user_id = auth()->id();
+
+           $param = $request->all();
+
+           if ($param) {
+
+               \DB::table('user_extend')->where('user_id',$user_id)->update($param);
+           }else{
+
+               return $this->sendError(Code::FAIL2,'参数不能为空！');
+           }
            
         
        }catch (\Exception $exception){
@@ -563,8 +607,19 @@ class UserController extends BaseController
      */
     public function editHide(Request $request){
        try{
-        
-           
+
+           $user = auth()->user();
+
+
+           if($user->is_show == 1){
+               $user->is_show = 2;
+           }else{
+               $user->is_show = 1;
+           }
+
+           $user->save();
+
+           return $this->sendJson(200,'修改成功！');
         
        }catch (\Exception $exception){
     

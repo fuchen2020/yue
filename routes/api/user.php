@@ -110,10 +110,57 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
          **/
         $api->match(['get','post'],'editBaseInfo',User\UserController::class.'@editBaseInfo');
 
+        /**
+         * 获取择偶要求信息
+         * 访问地址: POST: getAskFor
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'getAskFor',User\UserController::class.'@getAskFor');
+        /**
+         * 设置择偶要求信息
+         * 访问地址: POST: setAskFor
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'setAskFor',User\UserController::class.'@setAskFor');
 
+        /**
+         * 获取家庭情况信息
+         * 访问地址: POST: getFamily
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'getFamily',User\UserController::class.'@getFamily');
 
+        /**
+         * 修改家庭情况信息
+         * 访问地址: POST: editFamily
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'editFamily',User\UserController::class.'@editFamily');
+
+        /**
+         * 修改隐身模式
+         * 访问地址: POST: editHide
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'editHide',User\UserController::class.'@editHide');
 
 
     });
+
+    // vip 相关
+
+    $api->group(['prefix' => 'vip'],function (Router $api){
+
+        /**
+         * 获取Vip数据列表
+         * 访问地址: POST: getVipList
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'getVipList',User\UserController::class.'@getVipList');
+
+
+    });
+
+
 
 });

@@ -53,4 +53,11 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
      **/
     $api->match(['get','post'],'sendSms',Comm\CommController::class.'@sendSms');
 
+    /**
+     * 获取客服微信号图片
+     * 访问地址: POST: getService
+     * 控制器位置: App\Http\Controllers\API\Comm\CommController.php
+     **/
+    $api->match(['get','post'],'getService',Comm\CommController::class.'@getService');
+
 });
