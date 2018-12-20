@@ -17,6 +17,7 @@ use App\Models\Api\UserOrder;
 use App\Models\Api\Vip;
 use EasyWeChat\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VipController extends BaseController
 {
@@ -60,7 +61,12 @@ class VipController extends BaseController
 
     /**
      * 所有支付（统一下单）
-     * @param Request $request
+     * @param  Request $request
+     * @param  type 订单类型 1=开会员  2= 打赏解锁
+     * @param  money 订单金额
+     * @param  vip_id vipID  type为1时必传
+     * @param  to_user_id 解锁对象ID  type为2时必传
+
      * @return VipController|\Illuminate\Http\JsonResponse
      */
     public function Pay(Request $request){
@@ -94,6 +100,19 @@ class VipController extends BaseController
                        'error' => $validator->errors()->first()
                    ]);
                }
+           }else{
+               $validator = \Validator::make($request->all(), [
+                   'to_user_id' => 'required',
+               ],[
+                   'to_user_id.required' => '解锁对象参数不能为空',
+               ]);
+
+               if ($validator->fails()) {
+                   return response()->json([
+                       'code' => 400,
+                       'error' => $validator->errors()->first()
+                   ]);
+               }
            }
 
            try{
@@ -114,8 +133,10 @@ class VipController extends BaseController
                if($param['type'] == 1){
                    $order->reason='开通会员';
                    $order->vip_id = $param['vip_id'];
+                   $order->vip_day = Vip::where('id',$param['vip_id'])->value('day');
                }else{
                    $order->reason='解锁联系方式';
+                   $order->to_user_id=$param['to_user_id'];
                }
 
                if ($order->save()){
@@ -191,11 +212,43 @@ class VipController extends BaseController
                        //处理订单关联表
                        if($order->type == 1){
                            //会员记录
-
+                           $userVip = \DB::table('user_vip')->where('user_id',$order->user_id)->first();
+                           //会员信息存在
+                           if($userVip){
+                               //更新会员状态
+                                $userVip->start_time = date('Y-m-d H:i:s');
+                                $userVip->end_time = date('Y-m-d H:i:s',time()+$order->vip_day*86400);
+                                $userVip->status = 1;
+                                $userVip->save();
+                           }else{
+                                //添加会员记录
+                               \DB::table('user_vip')->insert([
+                                    'user_id' => $order->user_id,
+                                   'start_time' => date('Y-m-d H:i:s'),
+                                   'end_time' => date('Y-m-d H:i:s',time()+$order->vip_day*86400),
+                                   'status' => 1,
+                                   'created_at' => date('Y-m-d H:i:s'),
+                               ]);
+                           }
 
                        }else{
                           // 打赏解锁
 
+                          //自己解锁对方
+                          $selfObj = \DB::table('user_mutual_xd')->where('user_id',$order->user_id)
+                               ->where('to_user_id',$order->to_user_id)
+                               ->first();
+                          //对方解锁自己
+                           $othersObj = \DB::table('user_mutual_xd')->where('user_id',$order->to_user_id)
+                               ->where('to_user_id',$order->user_id)
+                               ->first();
+                           //更新双方解锁状态
+                           if($selfObj && $othersObj){
+                               $selfObj->is_lock = 1;
+                               $othersObj->is_lock = 1;
+                               $selfObj->save();
+                               $othersObj->save();
+                           }
 
                        }
 

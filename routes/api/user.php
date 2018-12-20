@@ -23,6 +23,59 @@ Route::group([], function (Router $api) {
 
     });
 
+    // vip 相关
+
+    $api->group(['prefix' => 'vip'],function (Router $api){
+
+        /**
+         * 支付回调
+         * 访问地址: POST: payCallback
+         * 控制器位置: App\Http\Controllers\API\User\VipController.php
+         **/
+        $api->match(['get','post'],'payCallback',User\VipController::class.'@payCallback');
+
+    });
+
+    // 新人指导相关
+
+    $api->group(['prefix' => 'qa'],function (Router $api){
+
+        /**
+         * 获取新手引导列表
+         * 访问地址: POST: getList
+         * 控制器位置: App\Http\Controllers\API\User\NewGuideController.php
+         **/
+        $api->match(['get','post'],'getList',User\NewGuideController::class.'@getList');
+
+        /**
+         * 获取新手引导详情
+         * 访问地址: POST: getDetail
+         * 控制器位置: App\Http\Controllers\API\User\NewGuideController.php
+         **/
+        $api->match(['get','post'],'getDetail',User\NewGuideController::class.'@getDetail');
+
+        /**
+         * 获取用户协议
+         * 访问地址: POST: getAgreement
+         * 控制器位置: App\Http\Controllers\API\User\NewGuideController.php
+         **/
+        $api->match(['get','post'],'getAgreement',User\NewGuideController::class.'@getAgreement');
+
+        /**
+         * 获取联系方式图片
+         * 访问地址: POST: getContactImg
+         * 控制器位置: App\Http\Controllers\API\User\NewGuideController.php
+         **/
+        $api->match(['get','post'],'getContactImg',User\NewGuideController::class.'@getContactImg');
+
+
+
+    });
+
+
+
+
+
 
 });
 
@@ -154,13 +207,39 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
         /**
          * 获取Vip数据列表
          * 访问地址: POST: getVipList
-         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         * 控制器位置: App\Http\Controllers\API\User\VipController.php
          **/
-        $api->match(['get','post'],'getVipList',User\UserController::class.'@getVipList');
+        $api->match(['get','post'],'getVipList',User\VipController::class.'@getVipList');
+
+        /**
+         * 所有支付（统一下单）
+         * 访问地址: POST: Pay
+         * 控制器位置: App\Http\Controllers\API\User\VipController.php
+         **/
+        $api->match(['get','post'],'Pay',User\VipController::class.'@Pay');
 
 
     });
 
+    //心动相关
 
+    $api->group(['prefix' => 'love'],function (Router $api){
+
+        /**
+         * 查询心动点纪录
+         * 访问地址: POST: getHeartPointList
+         * 控制器位置: App\Http\Controllers\API\User\HeartController.php
+         **/
+        $api->match(['get','post'],'getHeartPointList',User\HeartController::class.'@getHeartPointList');
+
+        /**
+         * 查询当前心动点数量和认证情况
+         * 访问地址: POST: getHeartCount
+         * 控制器位置: App\Http\Controllers\API\User\HeartController.php
+         **/
+        $api->match(['get','post'],'getHeartCount',User\HeartController::class.'@getHeartCount');
+
+
+    });
 
 });
