@@ -33,5 +33,10 @@ Route::group(
             require base_path('routes/api/comm.php');
         });
 
+        //推荐
+        $api->group(['prefix' => 'rec'], function (Router $api) {
+            require base_path('routes/api/top.php');
+        });
+
 
     });

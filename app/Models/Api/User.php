@@ -33,4 +33,32 @@ class User extends Authenticatable implements JWTSubject
         return [];
         // TODO: Implement getJWTCustomClaims() method.
     }
+
+
+    //关联相册
+
+    public function photo(){
+
+        return $this->hasMany(UserPhoto::class,'user_id',$this->id);
+    }
+
+
+    //关联vip
+
+    public function vip(){
+
+        return $this->hasOne(UserVip::class,'user_id',$this->id);
+    }
+
+    //关联择偶需求
+
+    public function require(){
+
+        return $this->hasOne(UserRequire::class,'user_id',$this->id);
+    }
+
+
+
+
+
 }

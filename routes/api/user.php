@@ -73,10 +73,6 @@ Route::group([], function (Router $api) {
     });
 
 
-
-
-
-
 });
 
 
@@ -197,6 +193,20 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
          **/
         $api->match(['get','post'],'editHide',User\UserController::class.'@editHide');
 
+        /**
+         * 实名认证
+         * 访问地址: POST: realName
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'realName',User\UserController::class.'@realName');
+
+        /**
+         * 学历认证
+         * 访问地址: POST: degreeCertificate
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'degreeCertificate',User\UserController::class.'@degreeCertificate');
+
 
     });
 
@@ -241,5 +251,6 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
 
 
     });
+
 
 });

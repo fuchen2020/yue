@@ -361,5 +361,96 @@ class BaseController extends Controller
          return $value;
     }
 
+    /**
+     * 身份验证
+     * @param $img
+     * @param $num
+     * @param $name
+     * @return array
+     */
+    public static function _checkIdCard($img,$num,$name){
+
+        $token=self::_getToken();
+
+        if($token){
+            $url = 'https://aip.baidubce.com/rest/2.0/face/v3/person/verify?access_token=' . $token['access_token'];
+            $body = array(
+                "images" => $img,
+                'image_type' => 'BASE64',
+                'id_card_number' => $num,
+                'name' => utf8_encode($name),
+                'quality_control' => 'LOW',
+            );
+            $res = self::request_post($url, $body);
+
+            $res = json_decode($res,true);
+
+            dd($res);
+
+            foreach ($res['result'] as $re ){
+
+                if($re['res_code']==0 || $re['res_msg'][0]==206){
+                    return [
+                        'status' => true,
+                        'msg' => '图像审核通过！'
+                    ];
+                }else{
+
+                    return [
+                        'status' => false,
+                        'msg' => self::$re_msg[$re['res_msg'][0]],
+                    ];
+                }
+
+
+            }
+
+        }else{
+
+            return [
+                'status' =>false,
+                'msg' => '图像审核失败！'
+            ];
+        }
+
+
+
+    }
+
+
+    /**
+     * 图片上传
+     * @param $file 文件对象
+     * @param string $path  专用文件夹
+     * @return array
+     */
+    public function uploadImg($file,$path='qt'){
+        $filePath =[];  // 定义空数组用来存放图片路径
+        foreach ($file as $key => $value) {
+            // 判断图片上传中是否出错
+            if (!$value->isValid()) {
+                exit("上传图片出错，请重试！");
+            }
+            if(!empty($value)){//此处防止没有多文件上传的情况
+                $allowed_extensions = ["png", "jpg", "gif"];
+                if ($value->getClientOriginalExtension() && !in_array($value->getClientOriginalExtension(), $allowed_extensions)) {
+                    exit('您只能上传PNG、JPG或GIF格式的图片！');
+                }
+                $paths='/images/'.$path.'/'.date('Y-m-d');
+
+                //检测文件是否存在,不存在则创建
+                if (!\Storage::exists($paths)) {
+                    \Storage::makeDirectory($paths);
+                }
+
+                $destinationPath = '/uploads'.$paths; // 文件保存路径
+                $extension = $value->getClientOriginalExtension();   // 上传文件后缀
+                $fileName = date('YmdHis').mt_rand(100,999).'.'.$extension; // 重命名
+                $value->move(public_path().$destinationPath, $fileName); // 保存图片
+                $filePath[] = '/uploads'.$paths.'/'.$fileName;
+            }
+        }
+        return $filePath;
+    }
 
 }

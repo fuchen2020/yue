@@ -32,11 +32,12 @@ class UploadController extends BaseController
                 if ($value->getClientOriginalExtension() && !in_array($value->getClientOriginalExtension(), $allowed_extensions)) {
                     exit('您只能上传PNG、JPG或GIF格式的图片！');
                 }
-                $destinationPath = '/upload/images/'.$path.'/'.date('Y-m-d'); // 文件保存路径
+                $paths='/images/'.$path.'/'.date('Y-m-d');
+                $destinationPath = '/uploads'.$paths; // 文件保存路径
                 $extension = $value->getClientOriginalExtension();   // 上传文件后缀
                 $fileName = date('YmdHis').mt_rand(100,999).'.'.$extension; // 重命名
                 $value->move(public_path().$destinationPath, $fileName); // 保存图片
-                $filePath[] = $destinationPath.'/'.$fileName;
+                $filePath[] = $paths.'/'.$fileName;
             }
         }
         return $filePath;

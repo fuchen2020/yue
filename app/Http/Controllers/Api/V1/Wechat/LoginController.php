@@ -11,6 +11,7 @@ namespace App\Http\Controllers\Api\V1\Wechat;
 
 use App\Http\Components\Code;
 use App\Http\Controllers\Api\BaseController;
+use App\Models\Api\User;
 use App\Models\Api\UserAuth;
 use App\Models\Api\UserVip;
 use EasyWeChat\Factory;
@@ -64,6 +65,8 @@ class LoginController extends BaseController
                //判断当前用户在数据库是否存在
                if ($userAuth) {
                    $user_id = $userAuth->id;
+                   $users = User::where('id',$user_id)->first();
+
                    if (UserVip::where('user_id',$user_id)->where('end_time','>',date('Y-m-d H:i:s'))->exists()){//判断当前是否充值
                        $end_time=UserVIP::where('user_id',$user_id)->first();
                        $is_vip = $end_time['end_time'];
@@ -74,10 +77,12 @@ class LoginController extends BaseController
                    $info = [
                        'token' => auth()->tokenById($userAuth->id),
                        'is_vip' => $is_vip?true:false,
-                       'is_base_info' => $userAuth->head?true:false,
-                       'is_real_name' => $userAuth->is_card?true:false,
-                       'is_fen' =>  $userAuth->is_fen?true:false,
-                       'is_tui' =>  $userAuth->is_tui?true:false,
+                       'is_base_info' => $users->sex?true:false,
+                       'is_real_name' => $users->is_card?true:false,
+                       'is_fen' =>  $users->is_fen?true:false,
+                       'is_tui' =>  $users->is_tui?true:false,
+                       'is_card' =>  $users->is_card,
+                       'is_xue' =>  $users->is_xue,
                    ];
                    return response()->json([
                        'code' =>200,
@@ -114,6 +119,8 @@ class LoginController extends BaseController
                            'is_real_name' => false,
                            'is_fen' => false,
                            'is_tui' => false,
+                           'is_card' => 0,
+                           'is_xue' => 0,
                        ];
                        \DB::commit();
                        return response()->json([

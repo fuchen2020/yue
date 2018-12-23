@@ -15,6 +15,7 @@ use App\Models\Api\Banner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Overtrue\EasySms\EasySms;
+use App\Http\Controllers\Api\V1\Comm\UploadController;
 
 class CommController extends BaseController
 {
@@ -91,7 +92,6 @@ class CommController extends BaseController
 
     }
 
-
     /**
      * 发送短信验证码
      * @param Request $request
@@ -101,7 +101,7 @@ class CommController extends BaseController
 
         try{
 
-            $validator = Validator::make($request->all(), [
+            $validator = \Validator::make($request->all(), [
                 'phone' => [
                     'required',
                     'regex:/^1[3456789][0-9]{9}$/'
@@ -177,13 +177,13 @@ class CommController extends BaseController
        try{
 
            $files=$request->file();
+           $type=\request()->input('type')?:'qt';
+           $path=$this->uploadImg($files,$type);
 
-           $path=(new UploadController())->upload($files,'');
            if ($path) {
                $data=[
                    'path'=>$path,
                ];
-
                return $this->sendJson(200,'上传成功',$data);
 
            }else{

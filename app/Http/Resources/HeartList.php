@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\Resource;
 
-class UserphotoList extends Resource
+class HeartList extends Resource
 {
     /**
      * Transform the resource into an array.
@@ -14,6 +14,13 @@ class UserphotoList extends Resource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $data = [
+          'id' => $this->id,
+          'content' => $this->content,
+
+        ];
+
+
+        return $data;
     }
 }
