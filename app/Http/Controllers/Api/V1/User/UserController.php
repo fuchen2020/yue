@@ -566,13 +566,59 @@ class UserController extends BaseController
     public function setAskFor(Request $request){
        try{
 
-           $user_id = auth()->id();
+           $validator = \Validator::make($request->all(), [
+               'tall' => 'required',
+               'living_place' => 'required',
+               'salary' => 'required',
+               'age' => 'required',
+               'native_place' => 'required',
+               'xue' => 'required',
+               'marriage' => 'required',
+               'housing' => 'required',
+               'is_children' => 'required',
+               'is_smoking' => 'required',
+               'is_drink' => 'required',
+               'wedding_plans' => 'required',
+           ],[
+               'tall.required' => 'tall参数不能为空！',
+               'living_place.required' => 'living_place参数不能为空！',
+               'salary.required' => 'salary参数不能为空！',
+               'age.required' => 'age参数不能为空！',
+               'native_place.required' => 'native_place参数不能为空！',
+               'xue.required' => 'xue参数不能为空！',
+               'marriage.required' => 'marriage参数不能为空！',
+               'housing.required' => 'housing参数不能为空！',
+               'is_children.required' => 'is_children参数不能为空！',
+               'is_smoking.required' => '参数不能为空！',
+               'is_drink.required' => 'is_smoking参数不能为空！',
+               'wedding_plans.required' => 'wedding_plans参数不能为空！',
+           ]);
 
+           if ($validator->fails()) {
+               return response()->json([
+                   'code' => 400,
+                   'error' => $validator->errors()->first()
+               ]);
+           }
+
+           $user_id = auth()->id();
            $param = $request->all();
 
            if ($param) {
 
-               \DB::table('user_require')->where('user_id',$user_id)->update($param);
+               $require = \DB::table('user_require');
+
+               if($require->exists()){
+                   $param['updated_at'] = date('Y-m-d H:i:s');
+                   $require->where('user_id',$user_id)->update($param);
+               }else{
+                   $param['user_id'] = $user_id;
+                   $param['created_at'] = date('Y-m-d H:i:s');
+                   $require->insert($param);
+               }
+
+               return $this->sendJson(200,'修改成功');
+
            }else{
 
                return $this->sendError(Code::FAIL2,'参数不能为空！');
@@ -622,13 +668,41 @@ class UserController extends BaseController
     public function editFamily(Request $request){
        try{
 
-           $user_id = auth()->id();
+           $validator = \Validator::make($request->all(), [
+               'family_ranking' => 'required',
+               'parent_status' => 'required',
+               'parent_bao' => 'required',
+           ],[
+               'family_ranking.required' => 'family_ranking参数不能为空！',
+               'parent_status.required' => 'parent_status参数不能为空！',
+               'parent_bao.required' => 'parent_bao参数不能为空！',
+           ]);
 
+           if ($validator->fails()) {
+               return response()->json([
+                   'code' => 400,
+                   'error' => $validator->errors()->first()
+               ]);
+           }
+
+           $user_id = auth()->id();
            $param = $request->all();
 
            if ($param) {
 
-               \DB::table('user_extend')->where('user_id',$user_id)->update($param);
+               $require = \DB::table('user_extend');
+
+               if($require->exists()){
+                   $param['updated_at'] = date('Y-m-d H:i:s');
+                   $require->where('user_id',$user_id)->update($param);
+               }else{
+                   $param['user_id'] = $user_id;
+                   $param['created_at'] = date('Y-m-d H:i:s');
+                   $require->insert($param);
+               }
+
+               return $this->sendJson(200,'修改成功');
+
            }else{
 
                return $this->sendError(Code::FAIL2,'参数不能为空！');

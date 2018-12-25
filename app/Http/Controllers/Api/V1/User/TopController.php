@@ -22,7 +22,7 @@ class TopController extends BaseController
      * 获取推荐列表
      * @param Request $request
      * @param sex
-     * @param  age1  age2
+     * @param  age1 age2
      * @param city
      * @return TopController|\Illuminate\Http\JsonResponse
      */
@@ -37,7 +37,6 @@ class TopController extends BaseController
            //不是隐身模式
            $user=$user->where('is_show',1);
            //择偶条件
-
            //性别
            if ($request->input('sex')!=''){
                switch ($request->input('sex')) {
@@ -73,7 +72,6 @@ class TopController extends BaseController
            if ($request->input('city')!=''){
 
                $user = $user->where('city',$request->city);
-
            }
 
             $list = $user->with('photo')
@@ -84,8 +82,7 @@ class TopController extends BaseController
                     ->take(10)
                     ->get();
 
-//           dd($list->toArray());
-
+            // dd($list->toArray());
 
            if ($list) {
 
@@ -104,6 +101,24 @@ class TopController extends BaseController
        }
 
     }
+
+    /**
+     * 获取用户资料详情
+     * @param Request $request
+     * @return TopController|\Illuminate\Http\JsonResponse
+     */
+    public function getDetail(Request $request){
+       try{
+        
+           
+        
+       }catch (\Exception $exception){
+    
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+    
+    }
+
 
 
 }
