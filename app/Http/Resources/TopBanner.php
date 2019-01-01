@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\Resource;
 
-class NewGuideList extends Resource
+class TopBanner extends Resource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,10 @@ class NewGuideList extends Resource
     public function toArray($request)
     {
         $data = [
-            'id' => $this->id,
-            'title' => $this->title,
-            'content' => $this->content,
+          'id' => $this->id,
+          'img' => $this->img,
+          'url' => $this->url,
+          'status' => $this->status,
         ];
 
         return $data;

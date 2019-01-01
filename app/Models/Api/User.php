@@ -57,6 +57,12 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(UserRequire::class,'user_id',$this->id);
     }
 
+    //扩展资料
+
+    public function extend(){
+
+        return $this->hasOne(UserExtend::class,'user_id',$this->id);
+    }
 
 
 

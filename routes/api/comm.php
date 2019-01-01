@@ -60,4 +60,11 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
      **/
     $api->match(['get','post'],'getService',Comm\CommController::class.'@getService');
 
+    /**
+     * 用户举报
+     * 访问地址: POST: report
+     * 控制器位置: App\Http\Controllers\API\Comm\CommController.php
+     **/
+    $api->match(['get','post'],'report',Comm\CommController::class.'@report');
+
 });

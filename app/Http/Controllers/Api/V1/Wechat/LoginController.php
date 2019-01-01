@@ -28,16 +28,15 @@ class LoginController extends BaseController
 
        try{
 
-//           if($request->id){
-//
-//               return [
-//                   'code' =>200,
-//                   'data' =>[
-//                       'token' =>  auth()->tokenById($request->id),
-//                   ]
-//               ];
-//           }
+           if($request->id){
 
+               return [
+                   'code' =>200,
+                   'data' =>[
+                       'token' =>  auth()->tokenById($request->id),
+                   ]
+               ];
+           }
 
 
            $validator = \Validator::make($request->all(), [
@@ -80,7 +79,7 @@ class LoginController extends BaseController
                        'is_base_info' => $users->sex?true:false,
                        'is_real_name' => $users->is_card?true:false,
                        'is_fen' =>  $users->is_fen?true:false,
-                       'is_tui' =>  $users->is_tui?true:false,
+                       'is_tui' =>  $users->is_show?true:false,
                        'is_card' =>  $users->is_card,
                        'is_xue' =>  $users->is_xue,
                    ];

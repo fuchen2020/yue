@@ -31,13 +31,6 @@ class TopList extends Resource
             "vip" => $this->vip?true:false,
         ];
 
-
-
-
-
-
-
-
         return $data;
     }
 }

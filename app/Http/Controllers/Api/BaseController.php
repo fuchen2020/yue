@@ -11,7 +11,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Api\Config;
+use App\Models\Api\UserMsg;
+use App\Models\Api\UserVip;
 use Illuminate\Support\Facades\Storage;
+use Overtrue\EasySms\EasySms;
 
 class BaseController extends Controller
 {
@@ -452,5 +455,92 @@ class BaseController extends Controller
         }
         return $filePath;
     }
+
+
+    /**
+     * 发送推送消息
+     * @param $user_id
+     * @param $to_user_id
+     * @param $content
+     * @param $type
+     * @return bool
+     */
+    public function sendMsg($user_id,$to_user_id,$content,$type)
+    {
+
+        if($user_id &&$to_user_id &&$content && $type){
+            $msg=new UserMsg();
+            $msg->type=$type;
+            $msg->user_id=$user_id;
+            $msg->to_user_id=$to_user_id;
+            $msg->content=$content;
+            $msg->is_red=0;
+
+            if($msg->save()){
+                return true;
+            }else{
+                return false;
+            }
+
+        }else{
+            return false;
+        }
+
+
+    }
+
+    /**
+     * 发送互相心动短信
+     * @param $phone
+     * @param $user_no
+     * @return string
+     */
+    public  function send_Sms($phone,$user_no){
+        $easySms = new EasySms(config('easysms.config'));
+        try{
+            $easySms->send($phone, [
+                'template' => 'SMS_143861585',
+                'data' => [
+                    'userid' => $user_no
+                ],
+            ]);
+
+            return '发送成功';
+
+        }catch (\Exception $exception){
+            return $exception->getMessage();
+        }
+    }
+
+
+    /**
+     * 验证VIP会员
+     * @param $user_id
+     * @return array
+     */
+    public function is_vip($user_id){
+        $vip = UserVip::where('user_id',$user_id)
+            ->with('vip')
+            ->first();
+        if ($vip) {
+            if ($vip->end_time < date('Y-m-d H:i:s')){
+                return [
+                    'msg'=>'您的会员已过期！',
+                    'status'=>false,
+                ];
+            }else{
+                return [
+                    'msg'=>'您是会员',
+                    'status'=>true,
+                ];
+            }
+        }else{
+            return [
+                'msg'=>'您暂未开通会员！',
+                'status'=>false,
+            ];
+        }
+    }
+
 
 }

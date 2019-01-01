@@ -726,7 +726,6 @@ class UserController extends BaseController
 
            $user = auth()->user();
 
-
            if($user->is_show == 1){
                $user->is_show = 2;
            }else{

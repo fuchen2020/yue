@@ -216,6 +216,55 @@ class CommController extends BaseController
 
     }
 
+    /**
+     * 用户举报
+     * @param Request $request
+     * @return CommController|\Illuminate\Http\JsonResponse
+     */
+    public function report(Request $request){
+       try{
+
+           $validator = \Validator::make($request->all(), [
+               'type' => 'required',
+               'to_user_id' => 'required',
+           ], [
+               'type.required' => '请选择举报类型',
+               'to_user_id.required' => '举报对象参数不能为空',
+           ]);
+           if ($validator->fails()) {
+               return $this->sendError(Code::FAIL2,$validator->errors()->first());
+           }
+
+
+           $user_id=auth()->id();
+           $type=$request->input('type');
+           $param=$request->all();
+
+           $data=[
+               'user_id'=>$user_id,
+               'to_user_id'=>$param['to_user_id'],
+               'type'=>$param['type'],
+               'created_at'=>date('Y-m-d H:i:s'),
+           ];
+
+           if(array_key_exists('content',$param)){
+               $data['content']=$param['content'];
+           }
+           if(array_key_exists('img',$param)){
+               $data['img']= json_encode($param['img']);
+           }
+
+           \DB::table('reports')->insert($data);
+
+           return $this->sendJson(200,'举报成功');
+
+       }catch (\Exception $exception){
+
+          return $this->sendError(Code::FAIL3, $exception->getMessage());
+       }
+
+    }
+
 
 
 }
