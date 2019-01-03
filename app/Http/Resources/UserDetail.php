@@ -40,12 +40,16 @@ class UserDetail extends Resource
             "is_fen" => $this->is_fen,
             "is_hu" => $this->is_hu,
             "is_lock" => $this->is_lock,
+            "is_jia" => $this->is_jia,
             "photo" => $this->photo,
             "require" => $this->require,
             "extend" => $this->extend,
+            'circle' => '',
         ];
 
         //最新一条圈子动态
+
+
 
 
         return $data;

@@ -141,7 +141,7 @@ class TopController extends BaseController
 
 //           dd($userDetail->toArray());
 
-           if ($userDetail->toArray()) {
+           if (!$userDetail->toArray()) {
                //是否把对方加入心动
                 $xd = UserMutual::where('user_id',$user_id)->where('to_user_id',$to_user_id)->first();
                //判断是否加入心动
@@ -151,6 +151,7 @@ class TopController extends BaseController
                        $userDetail->is_hu = true;
                    }else{
                        $userDetail->is_hu = false;
+                       $userDetail->is_jia = true;
                    }
 
                    //判断是否已解锁联系方式
@@ -163,6 +164,7 @@ class TopController extends BaseController
                }else{
                    $userDetail->is_hu = false;
                    $userDetail->is_lock = false;
+                   $userDetail->is_jia = false;
                    $userDetail->phone='*******';
                    $userDetail->wx_no='*******';
                    $userDetail->qq='*******';
@@ -174,8 +176,9 @@ class TopController extends BaseController
            }else{
                $userDetail->phone='';
                $userDetail->wx_no='';
-               $userDetail['is_hu']=false;
-               $userDetail['is_lock']=false;
+               $userDetail->is_hu=false;  //是否互相关注
+               $userDetail->is_lock=false; //是否解锁联系方式
+               $userDetail->is_jia = false; // 是否加对方为心动
                $userDetail->phone='*******';
                $userDetail->wx_no='*******';
                $userDetail->qq='*******';
@@ -290,14 +293,29 @@ class TopController extends BaseController
      */
     public function joinPalpitation(Request $request){
        try{
+           $validator = \Validator::make($request->all(), [
+               'to_user_id' => 'required',
+               'content' => 'required',
+           ],[
+               'to_user_id.required' => 'to_user_id参数不能为空！',
+               'content.required' => '说明内容不能为空！',
+           ]);
+
+           if ($validator->fails()) {
+               return response()->json([
+                   'code' => 400,
+                   'error' => $validator->errors()->first()
+               ]);
+           }
 
            $user = auth()->user();
            $user_id=$user->id;
            $phone1=$user->phone;
            $to_user_id=$request->input('to_user_id');
+           $content=$request->input('content');
 
            if($user_id==$to_user_id) {
-               return $this->sendJson('', '自己不能加自己的心动哦！', 200, false);
+               return $this->sendError(400, '自己不能加自己的心动哦！');
            }
 
            //检测用户是否为会员
@@ -310,7 +328,7 @@ class TopController extends BaseController
                 if($user->x_point){
                     \DB::table('user')->decrement('x_point',1);
                 }else{
-                    return $this->sendError(200,'心动点数不足,开通会员可获得无限心动哦');
+                    return $this->sendError(400,'心动点数不足,开通会员可获得无限心动哦');
                 }
             }
 
@@ -322,7 +340,7 @@ class TopController extends BaseController
                ->first();
 
            if ($oneself){
-               return $this->sendJson(200,'该用户已加入心动');
+               return $this->sendError(400,'该用户已加入心动');
            }else{
                //再查看对方有没有把我加为心动
                $others = $join->where('user_id',$to_user_id)
@@ -332,6 +350,7 @@ class TopController extends BaseController
                    $join->user_id = $user_id;
                    $join->to_user_id = $to_user_id;
                    $join->is_hu = 1;
+                   $join->content = $content;
                    if ($join->save()) {
                        //todo 互为心动 发短信通知对方
                        $to_user=\DB::table('user')->where('id',$to_user_id)->first();
@@ -349,15 +368,16 @@ class TopController extends BaseController
                        }
                        return $this->sendJson(200,'加入心动成功');
                    }
-                   return $this->sendJson(200,'加入心动失败');
+                   return $this->sendError(400,'加入心动失败');
                }else{
                    $join->user_id=$user_id;
                    $join->to_user_id=$to_user_id;
+                   $join->content=$content;
                    if ($join->save()) {
                        $this->sendMsg($user_id,$to_user_id,'加入心动',2);
                        return $this->sendJson(200,'加入心动成功');
                    }else{
-                       return $this->sendError(200,'加入心动失败');
+                       return $this->sendError(400,'加入心动失败');
                    }
                }
 

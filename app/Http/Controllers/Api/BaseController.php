@@ -378,11 +378,11 @@ class BaseController extends Controller
         if($token){
             $url = 'https://aip.baidubce.com/rest/2.0/face/v3/person/verify?access_token=' . $token['access_token'];
             $body = array(
-                "images" => $img,
+                "image" => $img,
                 'image_type' => 'BASE64',
                 'id_card_number' => $num,
                 'name' => utf8_encode($name),
-                'quality_control' => 'LOW',
+                'quality_control' => 'NONE',
             );
             $res = self::request_post($url, $body);
 
