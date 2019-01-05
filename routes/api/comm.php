@@ -47,6 +47,13 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
     $api->match(['get','post'],'upload',Comm\CommController::class.'@upload');
 
     /**
+     * 上传图片OSS
+     * 访问地址: POST: uploadFileOss
+     * 控制器位置: App\Http\Controllers\API\Comm\CommController.php
+     **/
+    $api->match(['get','post'],'uploadFileOss',Comm\CommController::class.'@uploadFileOss');
+
+    /**
      * 发送短信验证码
      * 访问地址: POST: sendSms
      * 控制器位置: App\Http\Controllers\API\Comm\CommController.php

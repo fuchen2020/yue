@@ -63,9 +63,13 @@ class HeartController extends BaseController
            $user = auth()->user();
 
            return $this->sendJson(200,'获取成功',[
-              'point_num' => $user->x_point,
-               'is_card' => $user->is_card,
-               'is_xue' => $user->is_xue,
+              'point_num' => $user->x_point, //心动点数
+               'is_card' => $user->is_card, //实名
+               'is_xue' => $user->is_xue,  //学历
+               'is_gai' => $user->is_gai,  //基本资料
+               'is_ze' => isset($user->require->salary)?1:0, //择偶要求
+               'is_home' => isset($user->extend->parent_status)?1:0, //家庭情况
+               'is_circle' => 0, //发过至少一条朋友圈
            ]);
 
 
@@ -75,7 +79,5 @@ class HeartController extends BaseController
        }
     
     }
-    
-    
-    
+
 }

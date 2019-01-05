@@ -198,6 +198,37 @@ class CommController extends BaseController
     }
 
     /**
+     * 上传图片OSS
+     * @param Request $request
+     * @return CommController|\Illuminate\Http\JsonResponse
+     */
+    public function uploadFileOss(Request $request){
+       try{
+
+           $files=$request->file();
+           $type=\request()->input('type')?:'mini';
+           $path=$this->uploadOss($files,$type);
+
+           dd($path);
+
+           if ($path) {
+               $data=[
+                   'path'=>$path,
+               ];
+               return $this->sendJson(200,'上传成功',$data);
+
+           }else{
+               return $this->sendError(Code::FAIL2,'上传失败');
+           }
+
+       }catch (\Exception $exception){
+
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+
+    }
+
+    /**
      * 获取客服微信号图片
      * @param Request $request
      * @return CommController|\Illuminate\Http\JsonResponse
@@ -237,7 +268,6 @@ class CommController extends BaseController
 
 
            $user_id=auth()->id();
-           $type=$request->input('type');
            $param=$request->all();
 
            $data=[
@@ -251,7 +281,7 @@ class CommController extends BaseController
                $data['content']=$param['content'];
            }
            if(array_key_exists('img',$param)){
-               $data['img']= json_encode($param['img']);
+               $data['img']= $param['img'];
            }
 
            \DB::table('reports')->insert($data);

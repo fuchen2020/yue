@@ -456,6 +456,53 @@ class BaseController extends Controller
         return $filePath;
     }
 
+    /**
+     * 图片上传OSS
+     * @param $file
+     * @param string $path
+     * @return bool|string
+     */
+    public function uploadOss($file,$path='mini'){
+        try{
+
+            $filePath =[];  // 定义空数组用来存放图片路径
+            foreach ($file as $key => $value) {
+                // 判断图片上传中是否出错
+                if (!$value->isValid()) {
+                    exit("上传图片出错，请重试！");
+                }
+                if(!empty($value)){//此处防止没有多文件上传的情况
+                    $allowed_extensions = ["png", "jpg", "gif","jpeg"];
+                    if ($value->getClientOriginalExtension() && !in_array($value->getClientOriginalExtension(), $allowed_extensions)) {
+                        exit('您只能上传PNG、JPG或GIF格式的图片！');
+                    }
+                    $paths=$path.'/'.date('Y-m-d');// 文件保存路径
+
+                    $disk = \Storage::disk('oss');//引入storage类和oss文件驱动
+
+                     $re = $disk->put($paths,$value);
+
+                    if ($re) {
+
+                        $fileUrl = $disk->getUrl($re);
+                    }else{
+
+                        $fileUrl = false;
+                    }
+                }else{
+                    $fileUrl = false;
+                }
+            }
+
+            return $fileUrl;
+
+        }catch (\Exception $exception){
+
+            return false;
+        }
+
+    }
+
 
     /**
      * 发送推送消息

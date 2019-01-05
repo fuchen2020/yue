@@ -727,7 +727,7 @@ class UserController extends BaseController
            $user = auth()->user();
 
            if($user->is_show == 1){
-               $user->is_show = 2;
+               $user->is_show = 0;
            }else{
                $user->is_show = 1;
            }
@@ -843,6 +843,36 @@ class UserController extends BaseController
        }
     
     }
-    
+
+    /**
+     * 获取个人中心用户信息
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function getUserInfo(Request $request){
+       try{
+
+           $user = auth()->user();
+
+
+
+           return $this->sendJson(200,'获取成功！',[
+
+               'head' => $user->head,
+               'nickname' => $user->nickname,
+               'city' => $user->city,
+               'birthday' => $user->birthday,
+               'is_head' => $user->is_head,
+               'my_like' => 0,
+               'hu_like' => 0,
+               'like_me' => 0,
+           ]);
+
+       }catch (\Exception $exception){
+
+          return $this->sendError(Code::FAIL, $exception->getMessage());
+       }
+
+    }
 
 }

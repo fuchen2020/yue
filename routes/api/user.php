@@ -91,6 +91,13 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
         $api->match(['get','post'],'baseInfo',User\UserController::class.'@baseInfo');
 
         /**
+         * 获取个人中心用户信息
+         * 访问地址: POST: getUserInfo
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'getUserInfo',User\UserController::class.'@getUserInfo');
+
+        /**
          * 解密手机号
          * 访问地址: POST: decryptPhone
          * 控制器位置: App\Http\Controllers\API\WeChat\LoginController.php
