@@ -213,6 +213,12 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
          * 控制器位置: App\Http\Controllers\API\User\UserController.php
          **/
         $api->match(['get','post'],'degreeCertificate',User\UserController::class.'@degreeCertificate');
+        /**
+         * 上传用户头像
+         * 访问地址: POST: uploadHead
+         * 控制器位置: App\Http\Controllers\API\User\UserController.php
+         **/
+        $api->match(['get','post'],'uploadHead',User\UserController::class.'@uploadHead');
 
 
     });
@@ -256,7 +262,32 @@ Route::group(['middleware'=>'check.login'], function (Router $api) {
          **/
         $api->match(['get','post'],'getHeartCount',User\HeartController::class.'@getHeartCount');
 
+        /**
+         * 获取我喜欢的用户列表
+         * 访问地址: POST: getMyLikeList
+         * 控制器位置: App\Http\Controllers\API\User\HeartController.php
+         **/
+        $api->match(['get','post'],'getMyLikeList',User\HeartController::class.'@getMyLikeList');
 
+
+    });
+
+    //分享相关
+    $api->group(['prefix' => 'share'],function (Router $api){
+
+         /**
+          * 邀请好友
+          * 访问地址: POST: inviteFriends
+          * 控制器位置: App\Http\Controllers\API\User\ShareController.php
+          **/
+        $api->match(['get','post'],'inviteFriends',User\ShareController::class.'@inviteFriends');
+
+        /**
+          * 测试方法
+          * 访问地址: POST: test
+          * 控制器位置: App\Http\Controllers\API\User\ShareController.php
+          **/
+        $api->match(['get','post'],'test',User\ShareController::class.'@test');
     });
 
 

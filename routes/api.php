@@ -38,5 +38,10 @@ Route::group(
             require base_path('routes/api/top.php');
         });
 
+        //圈子
+        $api->group(['prefix' => 'circle'], function (Router $api) {
+            require base_path('routes/api/circle.php');
+        });
+
 
     });

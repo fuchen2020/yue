@@ -43,7 +43,7 @@ class TopController extends BaseController
            $yk = auth()->user();
            $user=new User();
            //不是隐身模式
-           $user=$user->where('is_show',1);
+           $user=$user->where('is_show','!=',1);
            //择偶条件
            //性别
            if ($request->input('sex')!=''){
@@ -90,9 +90,9 @@ class TopController extends BaseController
                     ->take(10)
                     ->get();
 
-            // dd($list->toArray());
+//             dd($list->toArray());
 
-           if ($list) {
+           if ($list->first()) {
 
                return $this->sendJson(200,'获取成功！',TopList::collection($list));
 
@@ -137,6 +137,9 @@ class TopController extends BaseController
                ->with('photo')
                ->with('require')
                ->with('extend')
+               ->with(['circle'=>function($query){
+                   $query->orderByDesc('created_at')->limit(1);
+               }])
                ->first();
 
 //           dd($userDetail->toArray());

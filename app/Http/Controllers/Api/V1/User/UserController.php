@@ -13,6 +13,7 @@ use App\Http\Components\Code;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Controllers\Api\V1\Comm\UploadController;
 use App\Http\Resources\HeartList;
+use App\Http\Resources\PhotoList;
 use App\Http\Resources\UserphotoList;
 use App\Models\Api\Monologue;
 use App\Models\Api\UserExtend;
@@ -214,9 +215,9 @@ class UserController extends BaseController
            $user_id = auth()->id();
            $photo = UserPhoto::where('user_id',$user_id)->get();
 
-           if ($photo) {
+           if ($photo->first()) {
                return $this->sendJson(200,'获取相册成功',[
-                   'photo' => UserPhotoList::collection($photo)
+                   'photo' => PhotoList::collection($photo)
                ]);
            }else{
 
@@ -255,13 +256,13 @@ class UserController extends BaseController
 
            $user_id = auth()->id();
 
-           $re=$this->uploadImg($file,'photo');
+           $re=$this->uploadOss($file,'photo');
 
            if ($re) {
 
               $id = DB::table('user_photo')->insertGetId([
                   'user_id' => $user_id,
-                   'img' => $re[0],
+                   'img' => $re,
                    'created_at' => date('Y-m-d H:i:s'),
 
                ]);
@@ -305,6 +306,7 @@ class UserController extends BaseController
                ]);
            }
 
+
            $photo_id = $request->photo_id;
            $path = $request->path;
 
@@ -312,10 +314,10 @@ class UserController extends BaseController
                ->delete();
 
            if ($re) {
-               if(file_exists($path)){
-                   unlink($path);
-               }
-               return $this->sendJson(200,'删除成功',$re);
+               $disk = \Storage::disk('oss');//引入storage类和oss文件驱动
+               $p = strstr($path,'photo');
+               $rep = $disk->delete($p);
+               return $this->sendJson(200,'删除成功',$rep);
            }else{
                return $this->sendError(Code::FAIL2,'删除失败');
            }
@@ -606,11 +608,11 @@ class UserController extends BaseController
 
            if ($param) {
 
-               $require = \DB::table('user_require');
+               $require = \DB::table('user_require')->where('user_id',$user_id);
 
                if($require->exists()){
                    $param['updated_at'] = date('Y-m-d H:i:s');
-                   $require->where('user_id',$user_id)->update($param);
+                   $require->update($param);
                }else{
                    $param['user_id'] = $user_id;
                    $param['created_at'] = date('Y-m-d H:i:s');
@@ -690,11 +692,11 @@ class UserController extends BaseController
 
            if ($param) {
 
-               $require = \DB::table('user_extend');
+               $require = \DB::table('user_extend')->where('user_id',$user_id);
 
                if($require->exists()){
                    $param['updated_at'] = date('Y-m-d H:i:s');
-                   $require->where('user_id',$user_id)->update($param);
+                   $require->update($param);
                }else{
                    $param['user_id'] = $user_id;
                    $param['created_at'] = date('Y-m-d H:i:s');
@@ -753,12 +755,10 @@ class UserController extends BaseController
 
            $validator = \Validator::make($request->all(), [
                'img' => 'required',
-               'img_file' => 'required',
                'num' => 'required',
                'name' => 'required',
            ],[
-               'img.required' => '图片对象不能为空！',
-               'img_file.required' => '图片文件对象不能为空！',
+               'img.required' => '图片不能为空！',
                'num.required' => '身份证号码不能为空！',
                'name.required' => '真实姓名不能为空！'
            ]);
@@ -770,23 +770,36 @@ class UserController extends BaseController
                ]);
            }
 
-           $file = $request->file('img_file');
-
-           $base64_img = $request->img;
+           $user = auth()->user();
+           $img = $request->img;
            $num = $request->num;
            $name = $request->name;
 
-           $re = self::_checkIdCard($base64_img,$num,$name);
+           $re = self::_checkIdCard($img,$num,$name);
 
            if ($re) {
-               dd($re);
-           }
 
-           
+               $data['card_img'] = $request->img;
+               $data['card_num'] = $request->num;
+               $data['card_name'] = $request->name;
+               $data['user_id'] = $user->id;
+               $user_check = \DB::table('user_check')->where('user_id',$user->id)->first();
+               if($user_check){
+                   \DB::table('user_check')->where('user_id',$user->id)->update($data);
+               }else{
+                   \DB::table('user_check')->where('user_id',$user->id)->insert($data);
+               }
+               $user->is_card = 1;
+               $user->save();
+
+               return $this->sendJson(200,'提交成功,请耐心等待审核！');
+           }else{
+               return $this->sendError(400,'实名认证提交失败,请稍后重试');
+           }
         
        }catch (\Exception $exception){
     
-          return $this->sendError(Code::FAIL, $exception->getMessage());
+          return $this->sendError(Code::FAIL3, $exception->getMessage());
        }
     
     }
@@ -874,5 +887,45 @@ class UserController extends BaseController
        }
 
     }
+
+
+    /**
+     * 上传用户头像
+     * @param Request $request
+     * @return UserController|\Illuminate\Http\JsonResponse
+     */
+    public function uploadHead(Request $request){
+        try{
+            $user = auth()->user();
+
+            $validator = \Validator::make($request->all(), [
+                'img' => 'required',
+            ],[
+                'img.required' => '文件对象不能为空！',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'code' => 400,
+                    'error' => $validator->errors()->first()
+                ]);
+            }
+
+            $user->head = $request->img;
+            $user->is_head = 0;
+
+            if ($user->save()) {
+                return $this->sendJson(200,'头像上传成功,耐心等待审核！');
+            }else{
+                return $this->sendError(400,'上传头像失败！');
+            }
+
+        }catch (\Exception $exception){
+
+            return $this->sendError(Code::FAIL, $exception->getMessage());
+        }
+
+    }
+
 
 }

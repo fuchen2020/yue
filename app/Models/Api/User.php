@@ -39,7 +39,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function photo(){
 
-        return $this->hasMany(UserPhoto::class,'user_id',$this->id);
+        return $this->hasMany(UserPhoto::class,'user_id','id');
     }
 
 
@@ -47,21 +47,27 @@ class User extends Authenticatable implements JWTSubject
 
     public function vip(){
 
-        return $this->hasOne(UserVip::class,'user_id',$this->id);
+        return $this->hasOne(UserVip::class,'user_id','id');
     }
 
     //关联择偶需求
 
     public function require(){
 
-        return $this->hasOne(UserRequire::class,'user_id',$this->id);
+        return $this->hasOne(UserRequire::class,'user_id','id');
     }
 
     //扩展资料
 
     public function extend(){
 
-        return $this->hasOne(UserExtend::class,'user_id',$this->id);
+        return $this->hasOne(UserExtend::class,'user_id','id');
+    }
+
+    //动态
+    public function circle(){
+
+        return $this->hasMany(Circle::class,'user_id','id');
     }
 
 

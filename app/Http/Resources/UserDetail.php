@@ -42,14 +42,25 @@ class UserDetail extends Resource
             "is_lock" => $this->is_lock,
             "is_jia" => $this->is_jia,
             "photo" => $this->photo,
-            "require" => $this->require,
-            "extend" => $this->extend,
+            "require" => $this->require?:new \stdClass(),
+            "extend" => $this->extend?:new \stdClass(),
             'circle' => '',
         ];
 
         //最新一条圈子动态
 
+        if(isset($this->circle)){
 
+            $data['circle'] = [
+                'id' => $this->circle[0]['id'],
+                'content' => $this->circle[0]['content'],
+                'images' =>'',
+            ];
+
+            if(isset($this->circle[0]['images'])){
+                $data['circle']['images'] = explode(',',$this->circle[0]['images'])[0];
+            }
+        }
 
 
         return $data;

@@ -116,6 +116,36 @@ class UploadController extends BaseController
 
         // get file url
             $url = $disk->getUrl('folder/my_file.txt');
+
+
+         $disk->write('file.md', 'contents');
+
+         $disk->write('file.md', 'http://httpbin.org/robots.txt', ['options' => ['xxxxx' => 'application/redirect302']]);
+
+         $disk->writeStream('file.md', fopen('path/to/your/local/file.jpg', 'r'));
+
+         $disk->update('file.md', 'new contents');
+
+         $disk->updateStream('file.md', fopen('path/to/your/local/file.jpg', 'r'));
+
+         $disk->rename('foo.md', 'bar.md');
+
+         $disk->copy('foo.md', 'foo2.md');
+
+         $disk->delete('file.md');
+
+         $disk->has('file.md');
+
+         $disk->read('file.md');
+         $disk->listContents();
+         $disk->getMetadata('file.md');
+         $disk->getSize('file.md');
+
+        $disk->getAdapter()->getUrl('file.md');
+
+        $disk->getMimetype('file.md');
+
+        $disk->getTimestamp('file.md');
     }
 
 }

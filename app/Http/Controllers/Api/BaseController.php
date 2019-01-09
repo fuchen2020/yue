@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Api\Config;
 use App\Models\Api\UserMsg;
 use App\Models\Api\UserVip;
+use EasyWeChat\Factory;
 use Illuminate\Support\Facades\Storage;
 use Overtrue\EasySms\EasySms;
 
@@ -379,45 +380,30 @@ class BaseController extends Controller
             $url = 'https://aip.baidubce.com/rest/2.0/face/v3/person/verify?access_token=' . $token['access_token'];
             $body = array(
                 "image" => $img,
-                'image_type' => 'BASE64',
+                'image_type' => 'URL',
                 'id_card_number' => $num,
-                'name' => utf8_encode($name),
-                'quality_control' => 'NONE',
+                'name' => $name,
+                'quality_control' => 'LOW',
             );
             $res = self::request_post($url, $body);
 
             $res = json_decode($res,true);
 
-            dd($res);
+            if($res['error_msg'] === 'SUCCESS'){
 
-            foreach ($res['result'] as $re ){
-
-                if($re['res_code']==0 || $re['res_msg'][0]==206){
-                    return [
-                        'status' => true,
-                        'msg' => '图像审核通过！'
-                    ];
+                if($res['result']['score'] >= 80){
+                    return true;
                 }else{
-
-                    return [
-                        'status' => false,
-                        'msg' => self::$re_msg[$re['res_msg'][0]],
-                    ];
+                    return false;
                 }
-
-
+            }else{
+                return false;
             }
 
         }else{
 
-            return [
-                'status' =>false,
-                'msg' => '图像审核失败！'
-            ];
+            return false;
         }
-
-
-
     }
 
 
@@ -559,7 +545,6 @@ class BaseController extends Controller
         }
     }
 
-
     /**
      * 验证VIP会员
      * @param $user_id
@@ -587,6 +572,71 @@ class BaseController extends Controller
                 'status'=>false,
             ];
         }
+    }
+
+    /**
+     * 获取用户小程序二维码
+     * @param $user_id
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidArgumentException
+     * @return bool
+     */
+    public function getUserCode($user_id){
+
+        $config=config('wechat.config');
+        $app = Factory::miniProgram($config);
+        $scene = 'user_id='.$user_id;
+        $response = $app->app_code->getUnlimit((string) $scene, (array) $optional = []);
+
+        // 保存小程序码到文件
+        if ($response instanceof \EasyWeChat\Kernel\Http\StreamResponse) {
+            //$img = $this->data_uri($response,'image/png');
+            $m = '/upload/code/'.date('Y-m-d');
+            $path = public_path($m);
+            $filename = $response->saveAs($path,$user_id.'_'.md5(date('Y-m-d H:i:s').$user_id).'jpg');
+            $url = $m.'/'.$filename;
+
+        }else{
+            $url = false;
+        }
+
+        return $url;
+    }
+
+    //二进制转图片image/png
+    public function data_uri($contents, $mime)
+    {
+        $base64   = base64_encode($contents);
+        return ('data:' . $mime . ';base64,' . $base64);
+    }
+
+    /**
+     * 时间格式化
+     * @param $time
+     * @return false|string
+     */
+    public function setTime($time){
+        $rtime = date("m-d H:i",strtotime($time));
+        $htime = date("H:i",strtotime($time));
+        $time = time() - strtotime($time);
+        if ($time < 60){
+            $str = '刚刚';
+        }elseif ($time < 60 * 60){
+            $min = floor($time/60);
+            $str = $min.'分钟前';
+        }elseif ($time < 60 * 60 * 24){
+            $h = floor($time/(60*60));
+            $str = $h.'小时前 '.$htime;
+        }elseif ($time < 60 * 60 * 24 * 3){
+            $d = floor($time/(60*60*24));
+            if($d==1)
+                $str = '昨天 '.$rtime;
+            else
+                $str = '前天 '.$rtime;
+        }else{
+            $str = $rtime;
+        }
+
+        return $str;
     }
 
 

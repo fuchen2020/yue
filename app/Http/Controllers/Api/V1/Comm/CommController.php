@@ -208,9 +208,6 @@ class CommController extends BaseController
            $files=$request->file();
            $type=\request()->input('type')?:'mini';
            $path=$this->uploadOss($files,$type);
-
-           dd($path);
-
            if ($path) {
                $data=[
                    'path'=>$path,

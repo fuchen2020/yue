@@ -25,7 +25,7 @@ class Controller extends BaseController
      * @param string $message
      * @return $this|\Illuminate\Http\JsonResponse
      */
-    public function sendError($code = 1, $message = '')
+    public function sendError($code = 400, $message = '')
     {
         $method   = $this->request->input('method');
         $callback = $this->request->input('callback');
@@ -40,7 +40,7 @@ class Controller extends BaseController
      * @param array $data
      * @return $this|\Illuminate\Http\JsonResponse
      */
-    public function sendJson($code = 0,$message = '',$data = [])
+    public function sendJson($code = 200,$message = '',$data = [])
     {
         $method   = $this->request->input('method');
         $callback = $this->request->input('callback');
